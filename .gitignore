@@ -4,9 +4,9 @@ __pycache__/
 *.pyc
 .DS_Store
 
-data/fonts/
-data/corpus/**
-data/bg/
+#data/fonts/
+#data/corpus/**
+#data/bg/
 
 # For example
 !data/fonts/chn/msyh.ttc
