@@ -22,5 +22,9 @@ libs/gpu/*.so
 libs/gpu/build/
 
 output/
+data/list_corpus
+data/bg_base
+log.log
+data/*.pkl
 .caches
 

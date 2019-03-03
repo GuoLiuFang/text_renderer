@@ -1,9 +1,3 @@
-
-# coding: utf-8
-
-# In[ ]:
-
-
 import os
 import subprocess
 from PIL import Image
@@ -21,7 +15,7 @@ class gexinghuaRunner:
         self.filelist = []
         self.textureList = []
         self.filelist.append(train_file)
-        with open(os.path.join(image_dir_path, train_file)) as f:
+        with open(os.path.join(image_dir_path, train_file), encoding='utf-8') as f:
             test_image_list = [str(line).strip() for line in f.readlines()]
         for line in test_image_list:
             fname = line.split(" ")[0]
@@ -31,7 +25,7 @@ class gexinghuaRunner:
             if os.path.exists(corpus_f):
                 shutil.rmtree(corpus_f)
             os.mkdir(corpus_f)
-            with open(f"{corpus_f}/{fname}.txt", "w") as tmpf:
+            with open(f"{corpus_f}/{fname}.txt", "w", encoding='utf-8') as tmpf:
                 tmpf.write(f"{content}\n")
             tmpdict = dict(strict="", 
                            tag=f"{fname}", 
@@ -54,10 +48,10 @@ class gexinghuaRunner:
             if os.path.exists(f"data/bg_base/{fname}"):
                 shutil.rmtree(f"data/bg_base/{fname}")
             os.makedirs(f"data/bg_base/{fname}", exist_ok=True)
-            tmpimg.crop([0, 0, tmp_w * 0.05 + 1, tmp_h]).save(f"data/bg_base/{fname}/1.jpg")
-            tmpimg.crop([0, 0, tmp_w, tmp_h * 0.05 + 1]).save(f"data/bg_base/{fname}/2.jpg")
-            tmpimg.crop([tmp_w * 0.95 - 1, 0, tmp_w, tmp_h]).save(f"data/bg_base/{fname}/3.jpg")
-            tmpimg.crop([0,tmp_h * 0.95 - 1, tmp_w , tmp_h]).save(f"data/bg_base/{fname}/4.jpg")
+            tmpimg.crop([0, 0, tmp_w * 0.05 + 1, tmp_h]).convert('RGB').save(f"data/bg_base/{fname}/1.jpg")
+            tmpimg.crop([0, 0, tmp_w, tmp_h * 0.05 + 1]).convert('RGB').save(f"data/bg_base/{fname}/2.jpg")
+            tmpimg.crop([tmp_w * 0.95 - 1, 0, tmp_w, tmp_h]).convert('RGB').save(f"data/bg_base/{fname}/3.jpg")
+            tmpimg.crop([0,tmp_h * 0.95 - 1, tmp_w , tmp_h]).convert('RGB').save(f"data/bg_base/{fname}/4.jpg")
             self.textureList.append([tmp_w, tmp_h, content, f"data/bg_base/{fname}"])
             ### table line 和random space个16张。。bg和blur个8张。。。
             x1 = dict(strict="", 
@@ -107,8 +101,7 @@ class gexinghuaRunner:
             self.configs.append(x4)
         # 把纹理特征存储起来以供后面使用。。注意程序的border。。
         self.df = pd.DataFrame(np.array(self.textureList), columns=['width', 'height', 'char_distribute', 'bg_store'])     
-        if os.path.exists("data/base_texture.pkl"):
-            shutil.rmtree("data/base_texture.pkl")
+        subprocess.getoutput("rm -rf data/base_texture.pkl")
         self.df.to_pickle("data/base_texture.pkl")
     def __dict_to_args__(self, config: dict):
         args = []
@@ -132,7 +125,7 @@ class gexinghuaRunner:
         if os.path.exists(self.out):
             shutil.rmtree(self.out)
         os.mkdir(self.out)
-        with open(os.path.join(self.out, "tmp_labels.txt"), "w") as resultf:
+        with open(os.path.join(self.out, "tmp_labels.txt"), "w", encoding='utf-8') as resultf:
             for dir_path, dir_name_list, file_name_list in os.walk(self.o_dir):
                 if dir_path != self.o_dir:
     #                 print(dir_path)
@@ -140,7 +133,7 @@ class gexinghuaRunner:
                     basename = dir_path.split("/")[-1]
                     if not basename.startswith("."):
                         basename = basename.split(".")[0] + "_"
-                        with open(os.path.join(dir_path, "tmp_labels.txt")) as f:
+                        with open(os.path.join(dir_path, "tmp_labels.txt"), encoding='utf-8') as f:
                             tmp_flist = [str(line).strip() for line in f.readlines()]
                         for line in tmp_flist:
                             fname = line.split(" ")[0]
@@ -158,7 +151,7 @@ class gexinghuaRunner:
     def __create__(self):
         self.diclist = []
         for file in self.filelist:
-            with open(file) as f:
+            with open(file, encoding='utf-8') as f:
                 for line in f:
                     fname = line.split(" ")[0]
                     tmp = line[len(fname):]
@@ -169,13 +162,13 @@ class gexinghuaRunner:
         self.counter = Counter(self.diclist)
         # 把counter转化为字典，存储起来。
         self.keys = [' '] + sorted(list(self.counter))
-        with open(os.path.join(self.out, "keys.txt"), "w") as kf:
+        with open(os.path.join(self.out, "keys.txt"), "w", encoding='utf-8') as kf:
             for i in self.keys:
                 kf.write(i + "\n")
     def __getIndex__(self):
         for file in self.filelist:
             basename = os.path.basename(file)
-            with open(file) as f, open(file + "_with_index.txt", "w") as indf:
+            with open(file, encoding='utf-8') as f, open(file + "_with_index.txt", "w", encoding='utf-8') as indf:
 #             with open(file) as f, open(os.path.join(self.out, basename + "_with_index"), "w") as indf:                
                 for line in f:
                     fname = line.split(" ")[0]
@@ -217,68 +210,12 @@ class gexinghuaRunner:
         
 
 
-# In[ ]:
-
-
-x = gexinghuaRunner(image_dir_path="/Users/guoliufang/Downloads/only_qishui_debug", 
-train_file="/Users/guoliufang/Downloads/only_qishui_debug/label_tmp_guaid_data_produce.txt_debug"
+x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui", 
+train_file="/workspace/densent_ocr/only_qishui/label_tmp_guaid_data_produce.txt", 
+o_dir="output/only_qishui_final"
 )
-
-
-# In[ ]:
-
-
 x.run_gen()
-
-
-# In[ ]:
-
-
 x.merge_result(out_suffix="_glf_result_1")
-
-
-# In[ ]:
-
-
 x.resizeImg(result_suffix="_glf_fixresize_1")
-
-
-# In[ ]:
-
-
-# # Read YAML file
-# with open("data.yaml", 'r') as stream:
-#     data_loaded = yaml.load(stream)
-
-# print(data == data_loaded)
-
-import yaml
-with open("configs/mix_data.yaml") as f:
-    mix_config = yaml.load(f)
-print(mix_config)
-
-
-# In[ ]:
-
-
-print(type(mix_config))
-
-
-# In[ ]:
-
-
-get_ipython().run_line_magic('run', '-i ./main.py --help')
-
-
-# In[ ]:
-
-
-get_ipython().run_line_magic('run', '-i main.py  --strict --config_file="configs/mix_data_blur.yaml" --num_img=64 --img_height=59 --img_width=196 --corpus_mode="list" --corpus_dir ./data/list_corpus  --output_dir ./output/mix_test/')
-# %run -i main.py  --config_file="configs/mix_data.yaml" --num_img=40 --length=22 --img_height=31 --img_width=514 --corpus_mode="list" --corpus_dir ./data/list_corpus  --output_dir ./output/mix_test/
-
-
-
-
-
 
 
