@@ -85,7 +85,7 @@ class gexinghuaRunner:
                           corpus_mode="list", 
                           output_dir=f"{self.o_dir}")
             x3['config_file'] = 'configs/mix_data_bg.yaml'
-            x3['num_img'] = 8
+            x3['num_img'] = 16
             x3['bg_dir'] = f"data/bg_base/{fname}"
             self.configs.append(x3)
             # blur 也是8张图片
@@ -97,7 +97,7 @@ class gexinghuaRunner:
                           corpus_mode="list", 
                           output_dir=f"{self.o_dir}")
             x4['config_file'] = 'configs/mix_data_blur.yaml'
-            x4['num_img'] = 8           
+            x4['num_img'] = 16           
             self.configs.append(x4)
         # 把纹理特征存储起来以供后面使用。。注意程序的border。。
         self.df = pd.DataFrame(np.array(self.textureList), columns=['width', 'height', 'char_distribute', 'bg_store'])     
@@ -197,7 +197,7 @@ class gexinghuaRunner:
                     # 打开图片然后resize就好。。
                     img = Image.open(file)
                     img = img.resize((uniw,unih), Image.ANTIALIAS)
-                    img.save(os.path.join(finout, filename))
+                    img.convert('RGB').save(os.path.join(finout, filename))
                 else:
                     shutil.copy2(file, finout)
             
