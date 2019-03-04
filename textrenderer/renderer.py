@@ -524,10 +524,10 @@ class Renderer(object):
 
     def apply_gauss_blur(self, img, ks=None):
         if ks is None:
-            ks = [7, 9, 11, 13]
+            ks = [3, 5, 7, 9]
         ksize = random.choice(ks)
 
-        sigmas = [3, 4, 5]
+        sigmas = [0, 1, 2]
         # sigma = 0
         # if ksize <= 8:
         sigma = random.choice(sigmas)
@@ -537,7 +537,7 @@ class Renderer(object):
     def apply_norm_blur(self, img, ks=None):
         # kernel == 1, the output image will be the same
         if ks is None:
-            ks = [7, 8, 9, 10, 11, 12, 13]
+            ks = [3, 5, 7, 9]
         kernel = random.choice(ks)
         img = cv2.blur(img, (kernel, kernel))
         return img

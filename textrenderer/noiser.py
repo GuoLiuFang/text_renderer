@@ -41,6 +41,8 @@ class Noiser(object):
         """
         Gaussian-distributed additive noise.
         """
+        if len(img.shape) > 2:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         row, col = img.shape
 
         mean = 0
@@ -55,6 +57,8 @@ class Noiser(object):
         """
         Apply zero-mean uniform noise
         """
+        if len(img.shape) > 2:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         row, col = img.shape
         alpha = 0.05
         gauss = np.random.uniform(0 - alpha, alpha, (row, col))
@@ -66,6 +70,8 @@ class Noiser(object):
         """
         Salt and pepper noise. Replaces random pixels with 0 or 255.
         """
+        if len(img.shape) > 2:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         row, col = img.shape
         s_vs_p = 0.5
         amount = np.random.uniform(0.004, 0.01)
