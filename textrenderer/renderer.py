@@ -434,9 +434,9 @@ class Renderer(object):
 
         out = out[y_offset:y_offset + height, x_offset:x_offset + width]
 
-        out = self.apply_gauss_blur(out, ks=[7, 11, 13, 15, 17])
+        # out = self.apply_gauss_blur(out, ks=[7, 11, 13, 15, 17])
 
-        bg_mean = int(np.mean(out))
+        # bg_mean = int(np.mean(out))
 
         # TODO: find a better way to deal with background
         # alpha = 255 / bg_mean  # 对比度
@@ -524,12 +524,10 @@ class Renderer(object):
 
     def apply_gauss_blur(self, img, ks=None):
         if ks is None:
-            ks = [3, 5, 7, 9]
+            ks = [5, 7]
         ksize = random.choice(ks)
 
-        sigmas = [0, 1, 2]
-        # sigma = 0
-        # if ksize <= 8:
+        sigmas = [3, 4]
         sigma = random.choice(sigmas)
         img = cv2.GaussianBlur(img, (ksize, ksize), sigma)
         return img
@@ -537,7 +535,7 @@ class Renderer(object):
     def apply_norm_blur(self, img, ks=None):
         # kernel == 1, the output image will be the same
         if ks is None:
-            ks = [3, 5, 7, 9]
+            ks = [5, 6, 7]
         kernel = random.choice(ks)
         img = cv2.blur(img, (kernel, kernel))
         return img

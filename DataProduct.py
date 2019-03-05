@@ -32,6 +32,7 @@ class gexinghuaRunner:
                            num_img=f"{per_img_num}", 
                            config_file=f"{conf}", 
                           corpus_dir=f"{corpus_f}", 
+                          fonts_list="data/fonts_list/base_chn.txt",
                           corpus_mode="list", 
                           output_dir=f"{self.o_dir}")
             tmpimg = Image.open(os.path.join(image_dir_path, fname))
@@ -59,6 +60,7 @@ class gexinghuaRunner:
                            num_img=f"{per_img_num}", 
                            config_file=f"{conf}", 
                           corpus_dir=f"{corpus_f}", 
+                          fonts_list="data/fonts_list/base_chn.txt",
                           corpus_mode="list", 
                           output_dir=f"{self.o_dir}")
             x1['config_file'] = 'configs/mix_data_line.yaml'
@@ -71,6 +73,7 @@ class gexinghuaRunner:
                            num_img=f"{per_img_num}", 
                            config_file=f"{conf}", 
                           corpus_dir=f"{corpus_f}", 
+                          fonts_list="data/fonts_list/base_chn.txt",
                           corpus_mode="list", 
                           output_dir=f"{self.o_dir}")
                 x2['config_file'] = 'configs/mix_data_space.yaml'   
@@ -82,6 +85,7 @@ class gexinghuaRunner:
                            num_img=f"{per_img_num}", 
                            config_file=f"{conf}", 
                           corpus_dir=f"{corpus_f}", 
+                          fonts_list="data/fonts_list/base_chn.txt",
                           corpus_mode="list", 
                           output_dir=f"{self.o_dir}")
             x3['config_file'] = 'configs/mix_data_bg.yaml'
@@ -94,11 +98,23 @@ class gexinghuaRunner:
                            num_img=f"{per_img_num}", 
                            config_file=f"{conf}", 
                           corpus_dir=f"{corpus_f}", 
+                          fonts_list="data/fonts_list/base_chn.txt",
                           corpus_mode="list", 
                           output_dir=f"{self.o_dir}")
             x4['config_file'] = 'configs/mix_data_blur.yaml'
             x4['num_img'] = 16           
             self.configs.append(x4)
+            # 重型mix_mix
+            x5 = dict(strict="", 
+                           tag=f"{fname}", 
+                           num_img=f"{per_img_num}", 
+                           config_file=f"{conf}", 
+                          corpus_dir=f"{corpus_f}", 
+                          corpus_mode="list", 
+                          output_dir=f"{self.o_dir}")
+            x5['config_file'] = 'configs/mix_data_mix.yaml'
+            x5['num_img'] = 128         
+            self.configs.append(x5)            
         # 把纹理特征存储起来以供后面使用。。注意程序的border。。
         self.df = pd.DataFrame(np.array(self.textureList), columns=['width', 'height', 'char_distribute', 'bg_store'])     
         subprocess.getoutput("rm -rf data/base_texture.pkl")
@@ -202,20 +218,39 @@ class gexinghuaRunner:
                     shutil.copy2(file, finout)
             
         
-        
+def resizeImg(unih=158, uniw=686, result_suffix="_fixresize"):
+    # 预测函数，要强行转化为32，686
+    imgdirlist = ['/workspace/densent_ocr/only_qishui', 'output/only_qishui_final_glf_result_1']
+    for img_dir in imgdirlist:
+        finout = img_dir + result_suffix
+        if os.path.exists(finout):
+            shutil.rmtree(finout)
+        os.mkdir(finout)
+        # 遍历所有的图片，然后进行resize。。
+        for file in glob.glob(f"{img_dir}/*.*"):
+            filename = os.path.basename(file)
+            if '.jpg' in file or '.jpeg' in file:
+                # 打开图片然后resize就好。。
+                img = Image.open(file)
+                img = img.resize((uniw,unih), Image.ANTIALIAS)
+                img.convert('RGB').save(os.path.join(finout, filename))
+            else:
+                shutil.copy2(file, finout)
 
-            
-            
-            
-        
 
 
-x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui", 
-train_file="/workspace/densent_ocr/only_qishui/label_tmp_guaid_data_produce.txt", 
-o_dir="output/only_qishui_final"
-)
-x.run_gen()
-x.merge_result(out_suffix="_glf_result_1")
-x.resizeImg(result_suffix="_glf_fixresize_1")
 
 
+
+
+
+
+
+
+#x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui",
+#train_file="/workspace/densent_ocr/only_qishui/label_tmp_guaid_data_produce.txt",
+#o_dir="output/only_qishui_final"
+#)
+#x.run_gen()
+#x.merge_result(out_suffix="_glf_result_1")
+resizeImg(result_suffix="_rz_fixresize_1")

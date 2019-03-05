@@ -4,8 +4,8 @@ import numpy as np
 
 
 class LineState(object):
-    tableline_x_offsets = range(8, 40)
-    tableline_y_offsets = range(3, 10)
+    tableline_x_offsets = range(-32, 8)
+    tableline_y_offsets = range(-4, 8)
     tableline_thickness = [1, 2]
 
     # 0/1/2/3: 仅单边（左上右下）
@@ -50,7 +50,7 @@ class Liner(object):
         return line_effect_func(word_img, text_box_pnts, word_color)
 
     def apply_under_line(self, word_img, text_box_pnts, word_color):
-        y_offset = random.choice([0, 1])
+        y_offset = random.choice([-1, 0, 1])
 
         text_box_pnts[2][1] += y_offset
         text_box_pnts[3][1] += y_offset
@@ -63,7 +63,7 @@ class Liner(object):
                        color=line_color,
                        thickness=1,
                        lineType=cv2.LINE_AA)
-
+        self.apply_table_line(dst, text_box_pnts, word_color)
         return dst, text_box_pnts
 
     def apply_table_line(self, word_img, text_box_pnts, word_color):
@@ -72,6 +72,14 @@ class Liner(object):
         0/1/2/3: 仅单边（左上右下）
         4/5/6/7: 两边都有线（左上，右上，右下，左下）
         """
+        left_top_x = text_box_pnts[0][0]
+        left_top_y = text_box_pnts[0][1]
+        right_top_x = text_box_pnts[1][0]
+        right_top_y = text_box_pnts[1][1]
+        right_bottom_x = text_box_pnts[2][0]
+        right_bottom_y = text_box_pnts[2][1]
+        left_bottom_x = text_box_pnts[3][0]
+        left_bottom_y = text_box_pnts[3][1]
         dst = word_img
         option = random.choice(self.linestate.tableline_options)
         thickness = random.choice(self.linestate.tableline_thickness)
@@ -95,49 +103,49 @@ class Liner(object):
             return option in [2, 5, 6]
 
         if is_top():
-            text_box_pnts[0][1] -= top_y_offset
-            text_box_pnts[1][1] -= top_y_offset
+            left_top_y -= top_y_offset
+            right_top_y -= top_y_offset
 
         if is_bottom():
-            text_box_pnts[2][1] += bottom_y_offset
-            text_box_pnts[3][1] += bottom_y_offset
+            right_bottom_y += bottom_y_offset
+            left_bottom_y += bottom_y_offset
 
         if is_left():
-            text_box_pnts[0][0] -= left_x_offset
-            text_box_pnts[3][0] -= left_x_offset
+            left_top_x -= left_x_offset
+            left_bottom_x -= left_x_offset
 
         if is_right():
-            text_box_pnts[1][0] += right_x_offset
-            text_box_pnts[2][0] += right_x_offset
+            right_top_x += right_x_offset
+            right_bottom_x += right_x_offset
 
         if is_bottom():
             dst = cv2.line(dst,
-                           (0, text_box_pnts[2][1]),
-                           (word_img.shape[1], text_box_pnts[3][1]),
+                           (0, right_bottom_y),
+                           (word_img.shape[1], left_bottom_y),
                            color=line_color,
                            thickness=thickness,
                            lineType=cv2.LINE_AA)
 
         if is_top():
             dst = cv2.line(dst,
-                           (0, text_box_pnts[0][1]),
-                           (word_img.shape[1], text_box_pnts[1][1]),
+                           (0, left_top_y),
+                           (word_img.shape[1], right_top_y),
                            color=line_color,
                            thickness=thickness,
                            lineType=cv2.LINE_AA)
 
         if is_left():
             dst = cv2.line(dst,
-                           (text_box_pnts[0][0], 0),
-                           (text_box_pnts[3][0], word_img.shape[0]),
+                           (left_top_x, 0),
+                           (left_bottom_x, word_img.shape[0]),
                            color=line_color,
                            thickness=thickness,
                            lineType=cv2.LINE_AA)
 
         if is_right():
             dst = cv2.line(dst,
-                           (text_box_pnts[1][0], 0),
-                           (text_box_pnts[2][0], word_img.shape[0]),
+                           (right_top_x, 0),
+                           (right_bottom_x, word_img.shape[0]),
                            color=line_color,
                            thickness=thickness,
                            lineType=cv2.LINE_AA)
@@ -156,5 +164,5 @@ class Liner(object):
                        color=img_mean,
                        thickness=thickness,
                        lineType=cv2.LINE_AA)
-
+        self.apply_table_line(dst, text_box_pnts, word_color)
         return dst, text_box_pnts
