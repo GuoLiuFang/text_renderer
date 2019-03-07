@@ -332,8 +332,12 @@ class Renderer(object):
             c_offset = font.getoffset(c)
             if c_offset[1] < y_offset:
                 y_offset = c_offset[1]
-
-        char_space_width = int(height * np.random.uniform(self.cfg.random_space.min, self.cfg.random_space.max))
+        # random_space的大小也要动态控制。。
+        # char_space_width = int(height * np.random.uniform(self.cfg.random_space.min, self.cfg.random_space.max))
+        # 第一步，统一高度32的时候，每个字符的大小按照28计算。。
+        tmp_scale = self.out_height * 1.0 / 32.0
+        uni_width = self.out_width * 1.0 / tmp_scale
+        char_space_width = int(height * np.random.uniform(-1.0 * 0.382 * 0.618, uni_width / (self.text_length * 28.0) + 0.382 * 0.618))
 
         width += (char_space_width * (len(word) - 1))
 
@@ -453,8 +457,9 @@ class Renderer(object):
             font: truetype
             size: word size, removed offset (width, height)
         """
+        # 这个是要显示的数据。
         word = self.corpus.get_sample(img_index)
-
+        self.text_length = len(word)
         if self.clip_max_chars and len(word) > self.max_chars:
             word = word[:self.max_chars]
 
@@ -471,7 +476,9 @@ class Renderer(object):
                     raise Exception
 
         # Font size in point
-        font_size = random.randint(self.cfg.font_size.min, self.cfg.font_size.max)
+        # font_size = random.randint(self.cfg.font_size.min, self.cfg.font_size.max)
+        # 字体这块实现自适应。
+        font_size = random.randint(int(self.out_height * 0.382), int(self.out_height * (1.0 - 0.618 ** 5)))
         font = ImageFont.truetype(font_path, font_size)
 
         return word, font, self.get_word_size(font, word)

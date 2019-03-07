@@ -1,16 +1,17 @@
 import random
 import cv2
 import numpy as np
-
+import math
 
 class LineState(object):
     tableline_x_offsets = range(-32, 8)
     tableline_y_offsets = range(-4, 8)
-    tableline_thickness = [1, 2]
+    tableline_thickness = [1, 2, 2, 2, 2, 2, 2, 2, 2, 3]
 
     # 0/1/2/3: 仅单边（左上右下）
     # 4/5/6/7: 两边都有线（左上，右上，右下，左下）
-    tableline_options = range(0, 8)
+    tableline_options = [0, 1, 2, 3, 4, 5, 6, 7, 4, 5, 6, 7, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2]
+    # tableline_options = range(0, 8)
 
     middleline_thickness = [1, 2, 3]
     middleline_thickness_p = [0.2, 0.7, 0.1]
@@ -81,14 +82,36 @@ class Liner(object):
         left_bottom_x = text_box_pnts[3][0]
         left_bottom_y = text_box_pnts[3][1]
         dst = word_img
+        # word_img是image对象,所以，size[0]是宽，size[1]是高。通过高来判断字符的大小问题。。
+        # 划线区域，集中在，0.618 ** 5次方这个区间内。。
+        t_img_w = word_img.shape[1]
+        t_img_h = word_img.shape[0]
         option = random.choice(self.linestate.tableline_options)
         thickness = random.choice(self.linestate.tableline_thickness)
         line_color = word_color + random.randint(0, 10)
-
-        top_y_offset = random.choice(self.linestate.tableline_y_offsets)
-        bottom_y_offset = random.choice(self.linestate.tableline_y_offsets)
-        left_x_offset = random.choice(self.linestate.tableline_x_offsets)
-        right_x_offset = random.choice(self.linestate.tableline_x_offsets)
+        ## 偏移长度。。在5%和95%之间进行。。进入为负数，远离为正数。。
+        ## 进入到0.95的程度，远离到0.382的程度。。。这是水平。。
+        ## 在垂直方向控制进入和远离各10%的水平
+        # top_y_offset = random.choice(self.linestate.tableline_y_offsets)
+        if np.random.uniform(0, 1) < 1.0 - 0.618 ** 3:
+            top_y_offset = random.randint(0 - math.floor(t_img_h * (0.618 ** 4)), 0 - math.floor(t_img_h * (0.618 ** 6)))
+        else:
+            top_y_offset = random.randint(0 , math.floor(t_img_h * (0.618 ** 6)))
+        if np.random.uniform(0, 1) < 1.0 - 0.618 ** 3:
+            bottom_y_offset = random.randint(0 - math.floor(t_img_h * (0.618 ** 4)), 0 - math.floor(t_img_h * (0.618 ** 6)))
+        else:
+            bottom_y_offset = random.randint(0, math.floor(t_img_h * (0.618 ** 6)))
+        # bottom_y_offset = random.choice(self.linestate.tableline_y_offsets)
+        if np.random.uniform(0, 1) < 1.0 - 0.618 ** 4:
+            left_x_offset = random.randint(0 - math.floor(t_img_h * (0.618 ** 1)), 0 - math.floor(t_img_h * (0.618 ** 5)))
+        else:
+            left_x_offset = random.randint(0, math.floor(t_img_h * (0.618 ** 7)))
+        # left_x_offset = random.choice(self.linestate.tableline_x_offsets)
+        if np.random.uniform(0, 1) < 1.0 - 0.618 ** 4:
+            right_x_offset = random.randint(0 - math.floor(t_img_h * (0.618 ** 1)), 0 - math.floor(t_img_h * (0.618 ** 5)))
+        else:
+            right_x_offset = random.randint(0, math.floor(t_img_h * (0.618 ** 7)))
+        # right_x_offset = random.choice(self.linestate.tableline_x_offsets)
 
         def is_top():
             return option in [1, 4, 5]

@@ -65,6 +65,8 @@ class gexinghuaRunner:
                           output_dir=f"{self.o_dir}")
             x1['config_file'] = 'configs/mix_data_line.yaml'
             x1['num_img'] = 16
+            x1['img_width'] = tmp_w
+            x1['img_height'] = tmp_h
             self.configs.append(x1)
             # 判断是否含有三个空格，如果
             if "   " not in content:
@@ -78,6 +80,8 @@ class gexinghuaRunner:
                           output_dir=f"{self.o_dir}")
                 x2['config_file'] = 'configs/mix_data_space.yaml'   
                 x2['num_img'] = 16
+                x2['img_width'] = tmp_w
+                x2['img_height'] = tmp_h                
                 self.configs.append(x2)
             # 接下来是添加bg和blur，各8张图片。。
             x3 = dict(strict="", 
@@ -91,6 +95,8 @@ class gexinghuaRunner:
             x3['config_file'] = 'configs/mix_data_bg.yaml'
             x3['num_img'] = 16
             x3['bg_dir'] = f"data/bg_base/{fname}"
+            x3['img_width'] = tmp_w
+            x3['img_height'] = tmp_h
             self.configs.append(x3)
             # blur 也是8张图片
             x4 = dict(strict="", 
@@ -102,7 +108,9 @@ class gexinghuaRunner:
                           corpus_mode="list", 
                           output_dir=f"{self.o_dir}")
             x4['config_file'] = 'configs/mix_data_blur.yaml'
-            x4['num_img'] = 16           
+            x4['num_img'] = 16
+            x4['img_width'] = tmp_w
+            x4['img_height'] = tmp_h                       
             self.configs.append(x4)
             # 重型mix_mix
             x5 = dict(strict="", 
@@ -113,7 +121,9 @@ class gexinghuaRunner:
                           corpus_mode="list", 
                           output_dir=f"{self.o_dir}")
             x5['config_file'] = 'configs/mix_data_mix.yaml'
-            x5['num_img'] = 128         
+            x5['num_img'] = 128
+            x5['img_width'] = tmp_w
+            x5['img_height'] = tmp_h                     
             self.configs.append(x5)            
         # 把纹理特征存储起来以供后面使用。。注意程序的border。。
         self.df = pd.DataFrame(np.array(self.textureList), columns=['width', 'height', 'char_distribute', 'bg_store'])     
@@ -247,10 +257,10 @@ def resizeImg(unih=158, uniw=686, result_suffix="_fixresize"):
 
 
 
-#x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui",
-#train_file="/workspace/densent_ocr/only_qishui/label_tmp_guaid_data_produce.txt",
-#o_dir="output/only_qishui_final"
-#)
-#x.run_gen()
+x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_debug",
+train_file="/Users/GuoLiuFang/Downloads/only_qishui_debug/rm.txt",
+o_dir="output/only_qishui_final"
+)
+x.run_gen()
 #x.merge_result(out_suffix="_glf_result_1")
-resizeImg(result_suffix="_rz_fixresize_1")
+#resizeImg(result_suffix="_rz_fixresize_1")
