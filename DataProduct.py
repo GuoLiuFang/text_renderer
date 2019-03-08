@@ -7,7 +7,7 @@ import glob
 import pandas as pd
 import numpy as np
 class gexinghuaRunner:
-    def __init__(self, image_dir_path="", train_file="", per_img_num=64, conf="configs/mix_data.yaml", corpus_dir="data/list_corpus", o_dir="output/mix_train"):
+    def __init__(self, image_dir_path="", train_file="", per_img_num=0, conf="configs/mix_data.yaml", corpus_dir="data/list_corpus", o_dir="output/mix_train"):
         self.imgdirlist = []
         self.imgdirlist.append(image_dir_path)
         self.o_dir = o_dir
@@ -64,67 +64,67 @@ class gexinghuaRunner:
                           corpus_mode="list", 
                           output_dir=f"{self.o_dir}")
             x1['config_file'] = 'configs/mix_data_line.yaml'
-            x1['num_img'] = 16
+            x1['num_img'] = 64
             x1['img_width'] = tmp_w
             x1['img_height'] = tmp_h
             self.configs.append(x1)
-            # 判断是否含有三个空格，如果
-            if "   " not in content:
-                x2 = dict(strict="", 
-                           tag=f"{fname}", 
-                           num_img=f"{per_img_num}", 
-                           config_file=f"{conf}", 
-                          corpus_dir=f"{corpus_f}", 
-                          fonts_list="data/fonts_list/base_chn.txt",
-                          corpus_mode="list", 
-                          output_dir=f"{self.o_dir}")
-                x2['config_file'] = 'configs/mix_data_space.yaml'   
-                x2['num_img'] = 16
-                x2['img_width'] = tmp_w
-                x2['img_height'] = tmp_h                
-                self.configs.append(x2)
-            # 接下来是添加bg和blur，各8张图片。。
-            x3 = dict(strict="", 
-                           tag=f"{fname}", 
-                           num_img=f"{per_img_num}", 
-                           config_file=f"{conf}", 
-                          corpus_dir=f"{corpus_f}", 
-                          fonts_list="data/fonts_list/base_chn.txt",
-                          corpus_mode="list", 
-                          output_dir=f"{self.o_dir}")
-            x3['config_file'] = 'configs/mix_data_bg.yaml'
-            x3['num_img'] = 16
-            x3['bg_dir'] = f"data/bg_base/{fname}"
-            x3['img_width'] = tmp_w
-            x3['img_height'] = tmp_h
-            self.configs.append(x3)
+            # # 判断是否含有三个空格，如果
+            # if "   " not in content:
+            #     x2 = dict(strict="", 
+            #                tag=f"{fname}", 
+            #                num_img=f"{per_img_num}", 
+            #                config_file=f"{conf}", 
+            #               corpus_dir=f"{corpus_f}", 
+            #               fonts_list="data/fonts_list/base_chn.txt",
+            #               corpus_mode="list", 
+            #               output_dir=f"{self.o_dir}")
+            #     x2['config_file'] = 'configs/mix_data_space.yaml'   
+            #     x2['num_img'] = 16
+            #     x2['img_width'] = tmp_w
+            #     x2['img_height'] = tmp_h                
+            #     self.configs.append(x2)
+            # # 接下来是添加bg和blur，各8张图片。。
+            # x3 = dict(strict="", 
+            #                tag=f"{fname}", 
+            #                num_img=f"{per_img_num}", 
+            #                config_file=f"{conf}", 
+            #               corpus_dir=f"{corpus_f}", 
+            #               fonts_list="data/fonts_list/base_chn.txt",
+            #               corpus_mode="list", 
+            #               output_dir=f"{self.o_dir}")
+            # x3['config_file'] = 'configs/mix_data_bg.yaml'
+            # x3['num_img'] = 32
+            # x3['bg_dir'] = f"data/bg_base/{fname}"
+            # x3['img_width'] = tmp_w
+            # x3['img_height'] = tmp_h
+            # self.configs.append(x3)
             # blur 也是8张图片
-            x4 = dict(strict="", 
-                           tag=f"{fname}", 
-                           num_img=f"{per_img_num}", 
-                           config_file=f"{conf}", 
-                          corpus_dir=f"{corpus_f}", 
-                          fonts_list="data/fonts_list/base_chn.txt",
-                          corpus_mode="list", 
-                          output_dir=f"{self.o_dir}")
-            x4['config_file'] = 'configs/mix_data_blur.yaml'
-            x4['num_img'] = 16
-            x4['img_width'] = tmp_w
-            x4['img_height'] = tmp_h                       
-            self.configs.append(x4)
-            # 重型mix_mix
-            x5 = dict(strict="", 
-                           tag=f"{fname}", 
-                           num_img=f"{per_img_num}", 
-                           config_file=f"{conf}", 
-                          corpus_dir=f"{corpus_f}", 
-                          corpus_mode="list", 
-                          output_dir=f"{self.o_dir}")
-            x5['config_file'] = 'configs/mix_data_mix.yaml'
-            x5['num_img'] = 128
-            x5['img_width'] = tmp_w
-            x5['img_height'] = tmp_h                     
-            self.configs.append(x5)            
+            # x4 = dict(strict="", 
+            #                tag=f"{fname}", 
+            #                num_img=f"{per_img_num}", 
+            #                config_file=f"{conf}", 
+            #               corpus_dir=f"{corpus_f}", 
+            #               fonts_list="data/fonts_list/base_chn.txt",
+            #               corpus_mode="list", 
+            #               output_dir=f"{self.o_dir}")
+            # x4['config_file'] = 'configs/mix_data_blur.yaml'
+            # x4['num_img'] = 32
+            # x4['img_width'] = tmp_w
+            # x4['img_height'] = tmp_h                       
+            # self.configs.append(x4)
+            # # 重型mix_mix
+            # x5 = dict(strict="", 
+            #                tag=f"{fname}", 
+            #                num_img=f"{per_img_num}", 
+            #                config_file=f"{conf}", 
+            #               corpus_dir=f"{corpus_f}", 
+            #               corpus_mode="list", 
+            #               output_dir=f"{self.o_dir}")
+            # x5['config_file'] = 'configs/mix_data_mix.yaml'
+            # x5['num_img'] = 128
+            # x5['img_width'] = tmp_w
+            # x5['img_height'] = tmp_h                     
+            # self.configs.append(x5)            
         # 把纹理特征存储起来以供后面使用。。注意程序的border。。
         self.df = pd.DataFrame(np.array(self.textureList), columns=['width', 'height', 'char_distribute', 'bg_store'])     
         subprocess.getoutput("rm -rf data/base_texture.pkl")

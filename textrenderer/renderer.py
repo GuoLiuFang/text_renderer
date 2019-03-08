@@ -48,6 +48,7 @@ class Renderer(object):
         # Background's height should much larger than raw word image's height,
         # to make sure we can crop full word image after apply perspective
         bg = self.gen_bg(width=word_size[0] * 8, height=word_size[1] * 8)
+
         word_img, text_box_pnts, word_color = self.draw_text_on_bg(word, font, bg)
         self.dmsg("After draw_text_on_bg")
 
@@ -478,9 +479,10 @@ class Renderer(object):
         # Font size in point
         # font_size = random.randint(self.cfg.font_size.min, self.cfg.font_size.max)
         # 字体这块实现自适应。
-        font_size = random.randint(int(self.out_height * 0.382), int(self.out_height * (1.0 - 0.618 ** 5)))
+        # 字体这边要加一个概率分布。
+        t_upper = int(self.out_height * ( 1 - (0.618 ** 3)))
+        font_size = random.randint(int(t_upper * 0.382), t_upper)
         font = ImageFont.truetype(font_path, font_size)
-
         return word, font, self.get_word_size(font, word)
 
     def get_word_size(self, font, word):
@@ -524,25 +526,54 @@ class Renderer(object):
         return dst_img, dst_img_pnts, dst_text_pnts
 
     def apply_blur_on_output(self, img):
-        if prob(0.5):
-            return self.apply_gauss_blur(img)
-        else:
-            return self.apply_norm_blur(img)
+        # 我这里分别进行测试。
+        # if prob(0.5):
+        # return self.apply_gauss_blur(img)
+        # else:
+        return self.apply_norm_blur(img)
 
     def apply_gauss_blur(self, img, ks=None):
-        if ks is None:
-            ks = [5, 7]
+        # cv2 shape的第一个维度是高height。。
+        t_img_h = img.shape[0]
+        if t_img_h <= 32:
+            ks = [3, 5]
+            sigmas = [3, 4, 5]
+        # <= 32的代码搞定，不要再动了。
+        elif t_img_h <= 64:
+            ks = [7, 9]
+            sigmas = [7, 8, 9]
+        # <= 64的代码搞定，不要再动了。
+        elif t_img_h <= 128:
+            ks = [15, 17, 19]
+            sigmas = [13, 15, 17]
+        # <= 128的代码搞定，不要再动了。
+        elif t_img_h <= 256:
+            ks = [19, 21, 23, 25, 27, 29, 31, 33]
+            sigmas = [0, 1, 2, 3]
+        else:
+            ks = [35]
+            sigmas = [0, 1, 2, 3]
         ksize = random.choice(ks)
-
-        sigmas = [3, 4]
         sigma = random.choice(sigmas)
         img = cv2.GaussianBlur(img, (ksize, ksize), sigma)
         return img
 
     def apply_norm_blur(self, img, ks=None):
-        # kernel == 1, the output image will be the same
-        if ks is None:
-            ks = [5, 6, 7]
+        # cv2 shape的第一个维度是高height。。
+        t_img_h = img.shape[0]
+        if t_img_h <= 32:
+            ks = list(range(3,6))
+        # <= 32的代码搞定，不要再动了。
+        elif t_img_h <= 64:
+            ks = list(range(7, 10))
+        # <= 64的代码搞定，不要再动了。
+        elif t_img_h <= 128:
+            ks = list(range(13, 18))
+        # <= 128的代码搞定，不要再动了。
+        elif t_img_h <= 256:
+            ks = list(range(18, 34))
+        else:
+            ks = [35, 36]
         kernel = random.choice(ks)
         img = cv2.blur(img, (kernel, kernel))
         return img

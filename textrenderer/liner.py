@@ -4,13 +4,13 @@ import numpy as np
 import math
 
 class LineState(object):
-    tableline_x_offsets = range(-32, 8)
-    tableline_y_offsets = range(-4, 8)
+    tableline_x_offsets = range(8, 40)
+    tableline_y_offsets = range(3, 10)
     tableline_thickness = [1, 2, 2, 2, 2, 2, 2, 2, 2, 3]
 
     # 0/1/2/3: 仅单边（左上右下）
     # 4/5/6/7: 两边都有线（左上，右上，右下，左下）
-    tableline_options = [0, 1, 2, 3, 4, 5, 6, 7, 4, 5, 6, 7, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2]
+    tableline_options = [0, 2, 0, 2, 0, 2, 10, 11, 10, 11, 10, 11, 9, 9, 9, 1, 3, 1, 3, 4, 5, 6, 7]
     # tableline_options = range(0, 8)
 
     middleline_thickness = [1, 2, 3]
@@ -73,6 +73,16 @@ class Liner(object):
         0/1/2/3: 仅单边（左上右下）
         4/5/6/7: 两边都有线（左上，右上，右下，左下）
         """
+
+        t_img_h = word_img.shape[0]
+        t_img_w = word_img.shape[1]
+
+        t_box_h = text_box_pnts[2][1] - text_box_pnts[0][1]
+        t_box_w = text_box_pnts[2][0] - text_box_pnts[0][0]
+
+        s_space_h = t_img_h - t_box_h
+        s_space_w = t_box_w - t_box_w 
+
         left_top_x = text_box_pnts[0][0]
         left_top_y = text_box_pnts[0][1]
         right_top_x = text_box_pnts[1][0]
@@ -81,38 +91,23 @@ class Liner(object):
         right_bottom_y = text_box_pnts[2][1]
         left_bottom_x = text_box_pnts[3][0]
         left_bottom_y = text_box_pnts[3][1]
+
         dst = word_img
-        # word_img是image对象,所以，size[0]是宽，size[1]是高。通过高来判断字符的大小问题。。
-        # 划线区域，集中在，0.618 ** 5次方这个区间内。。
-        t_img_w = word_img.shape[1]
-        t_img_h = word_img.shape[0]
+
         option = random.choice(self.linestate.tableline_options)
         thickness = random.choice(self.linestate.tableline_thickness)
         line_color = word_color + random.randint(0, 10)
-        ## 偏移长度。。在5%和95%之间进行。。进入为负数，远离为正数。。
-        ## 进入到0.95的程度，远离到0.382的程度。。。这是水平。。
-        ## 在垂直方向控制进入和远离各10%的水平
-        # top_y_offset = random.choice(self.linestate.tableline_y_offsets)
-        if np.random.uniform(0, 1) < 1.0 - 0.618 ** 3:
-            top_y_offset = random.randint(0 - math.floor(t_img_h * (0.618 ** 4)), 0 - math.floor(t_img_h * (0.618 ** 6)))
-        else:
-            top_y_offset = random.randint(0 , math.floor(t_img_h * (0.618 ** 6)))
-        if np.random.uniform(0, 1) < 1.0 - 0.618 ** 3:
-            bottom_y_offset = random.randint(0 - math.floor(t_img_h * (0.618 ** 4)), 0 - math.floor(t_img_h * (0.618 ** 6)))
-        else:
-            bottom_y_offset = random.randint(0, math.floor(t_img_h * (0.618 ** 6)))
-        # bottom_y_offset = random.choice(self.linestate.tableline_y_offsets)
-        if np.random.uniform(0, 1) < 1.0 - 0.618 ** 4:
-            left_x_offset = random.randint(0 - math.floor(t_img_h * (0.618 ** 1)), 0 - math.floor(t_img_h * (0.618 ** 5)))
-        else:
-            left_x_offset = random.randint(0, math.floor(t_img_h * (0.618 ** 7)))
-        # left_x_offset = random.choice(self.linestate.tableline_x_offsets)
-        if np.random.uniform(0, 1) < 1.0 - 0.618 ** 4:
-            right_x_offset = random.randint(0 - math.floor(t_img_h * (0.618 ** 1)), 0 - math.floor(t_img_h * (0.618 ** 5)))
-        else:
-            right_x_offset = random.randint(0, math.floor(t_img_h * (0.618 ** 7)))
-        # right_x_offset = random.choice(self.linestate.tableline_x_offsets)
 
+        # 这是解决嵌入的问题
+        top_y_offset = random.randint(-7, math.floor((s_space_h - left_top_y) * 0.382))
+        bottom_y_offset = random.randint(- math.floor((left_bottom_y - t_box_h) * 0.382), 7)
+        left_x_offset = random.randint(math.floor((t_box_h) * (0.382 ** 2)), math.floor((t_box_h) * 1.618))
+        right_x_offset = random.randint(- math.floor((t_box_h) * 1.618), - math.floor((t_box_h) * (0.382 ** 2)))
+        # 这是解决距离的问题
+        t_top_y_offset = random.choice(self.linestate.tableline_y_offsets) + random.randint(-2, 2)
+        t_bottom_y_offset = random.choice(self.linestate.tableline_y_offsets) + random.randint(-1, 1)
+        t_left_x_offset = random.choice(self.linestate.tableline_x_offsets)
+        t_right_x_offset = random.choice(self.linestate.tableline_x_offsets)        
         def is_top():
             return option in [1, 4, 5]
 
@@ -124,22 +119,70 @@ class Liner(object):
 
         def is_right():
             return option in [2, 5, 6]
+        
+        def is_vertical():
+            return option in [9]
+
+        def is_left_padding():
+            return option in [10]
+
+        def is_right_padding():
+            return option in [11]
+
+        if is_left_padding():
+            left_top_x -= min(abs(t_left_x_offset - random.randint(1, 5)), abs(left_x_offset))
+            left_bottom_x -= min(abs(t_left_x_offset - random.randint(1, 5)), abs(left_x_offset))
+
+            text_box_pnts[0][0] -= t_left_x_offset
+            text_box_pnts[3][0] -= t_left_x_offset
+
+        if is_right_padding():
+            right_top_x += min(abs(t_right_x_offset - random.randint(1, 5)), abs(right_x_offset))
+            right_bottom_x += min(abs(t_right_x_offset - random.randint(1, 5)), abs(right_x_offset))
+
+            text_box_pnts[1][0] += t_right_x_offset
+            text_box_pnts[2][0] += t_right_x_offset      
+        
+        if is_vertical():
+            left_top_x -= min(abs(t_left_x_offset - random.randint(1, 5)), abs(left_x_offset))
+            left_bottom_x -= min(abs(t_left_x_offset - random.randint(1, 5)), abs(left_x_offset))
+
+            text_box_pnts[0][0] -= t_left_x_offset
+            text_box_pnts[3][0] -= t_left_x_offset
+
+            right_top_x += min(abs(t_right_x_offset - random.randint(1, 5)), abs(right_x_offset))
+            right_bottom_x += min(abs(t_right_x_offset - random.randint(1, 5)), abs(right_x_offset))
+
+            text_box_pnts[1][0] += t_right_x_offset
+            text_box_pnts[2][0] += t_right_x_offset                            
 
         if is_top():
-            left_top_y -= top_y_offset
-            right_top_y -= top_y_offset
+            left_top_y += top_y_offset
+            right_top_y += top_y_offset
+
+            text_box_pnts[0][1] -= t_top_y_offset
+            text_box_pnts[1][1] -= t_top_y_offset
 
         if is_bottom():
             right_bottom_y += bottom_y_offset
             left_bottom_y += bottom_y_offset
 
+            text_box_pnts[2][1] += t_bottom_y_offset
+            text_box_pnts[3][1] += t_bottom_y_offset            
+
         if is_left():
-            left_top_x -= left_x_offset
-            left_bottom_x -= left_x_offset
+            left_top_x += left_x_offset
+            left_bottom_x += left_x_offset
+
+            text_box_pnts[0][0] -= t_left_x_offset
+            text_box_pnts[3][0] -= t_left_x_offset            
 
         if is_right():
             right_top_x += right_x_offset
             right_bottom_x += right_x_offset
+
+            text_box_pnts[1][0] += t_right_x_offset
+            text_box_pnts[2][0] += t_right_x_offset            
 
         if is_bottom():
             dst = cv2.line(dst,
@@ -157,7 +200,7 @@ class Liner(object):
                            thickness=thickness,
                            lineType=cv2.LINE_AA)
 
-        if is_left():
+        if is_left() or is_left_padding():
             dst = cv2.line(dst,
                            (left_top_x, 0),
                            (left_bottom_x, word_img.shape[0]),
@@ -165,7 +208,22 @@ class Liner(object):
                            thickness=thickness,
                            lineType=cv2.LINE_AA)
 
-        if is_right():
+        if is_right() or is_right_padding():
+            dst = cv2.line(dst,
+                           (right_top_x, 0),
+                           (right_bottom_x, word_img.shape[0]),
+                           color=line_color,
+                           thickness=thickness,
+                           lineType=cv2.LINE_AA)
+
+        if is_vertical():
+            dst = cv2.line(dst,
+                           (left_top_x, 0),
+                           (left_bottom_x, word_img.shape[0]),
+                           color=line_color,
+                           thickness=thickness,
+                           lineType=cv2.LINE_AA)     
+
             dst = cv2.line(dst,
                            (right_top_x, 0),
                            (right_bottom_x, word_img.shape[0]),
