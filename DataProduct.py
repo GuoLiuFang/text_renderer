@@ -6,12 +6,22 @@ from collections import Counter
 import glob
 import pandas as pd
 import numpy as np
+import math
+import statistics
 class gexinghuaRunner:
-    def __init__(self, image_dir_path="", train_file="", per_img_num=0, conf="configs/mix_data.yaml", corpus_dir="data/list_corpus", o_dir="output/mix_train"):
+    def __init__(self, image_dir_path="", train_file="", per_img_num=64, conf="configs/mix_data.yaml", corpus_dir="data/list_corpus", o_dir="output/mix_train"):
+        # vim -d configs/default.yaml configs/mix_data.yaml
+        # mkdir caonima; cd caonima; git clone ; checkout 
+        tmp_prefix = "../../"
+        self.widthList = []
+        self.heightList = []
+        self.labelLenList = []
+
         self.imgdirlist = []
         self.imgdirlist.append(image_dir_path)
         self.o_dir = o_dir
-        self.configs = []
+        self.configs_base = []
+        self.configs_mix = []
         self.filelist = []
         self.textureList = []
         self.filelist.append(train_file)
@@ -24,23 +34,26 @@ class gexinghuaRunner:
             corpus_f = os.path.join(corpus_dir, fname)
             if os.path.exists(corpus_f):
                 shutil.rmtree(corpus_f)
-            os.mkdir(corpus_f)
+            os.makedirs(corpus_f)
             with open(f"{corpus_f}/{fname}.txt", "w", encoding='utf-8') as tmpf:
                 tmpf.write(f"{content}\n")
             tmpdict = dict(strict="", 
                            tag=f"{fname}", 
-                           num_img=f"{per_img_num}", 
+                           num_img=f"{per_img_num}",
+                           # 配置文件是当前文件夹，自己的配置文件。 
                            config_file=f"{conf}", 
-                          corpus_dir=f"{corpus_f}", 
+                           # 语料属于公共所以，需要存放在上层文件夹中
+                          corpus_dir=f"{tmp_prefix}{corpus_f}", 
                           fonts_list="data/fonts_list/base_chn.txt",
-                          corpus_mode="list", 
-                          output_dir=f"{self.o_dir}")
+                          corpus_mode="list",
+                          # 输出也是公共的 
+                          output_dir=f"{tmp_prefix}{self.o_dir}")
             tmpimg = Image.open(os.path.join(image_dir_path, fname))
             tmp_w = tmpimg.size[0]
             tmp_h = tmpimg.size[1]
             tmpdict['img_width'] = tmp_w
             tmpdict['img_height'] = tmp_h
-            self.configs.append(tmpdict)
+            self.configs_base.append(tmpdict)
             ### 新增纹理信息收集texture..以及bg的。。
 #             parser.add_argument('--bg_dir', type=str, default='./data/bg',
 #                         help="Some text images(according to your config in yaml file) will"
@@ -53,21 +66,25 @@ class gexinghuaRunner:
             tmpimg.crop([0, 0, tmp_w, tmp_h * 0.05 + 1]).convert('RGB').save(f"data/bg_base/{fname}/2.jpg")
             tmpimg.crop([tmp_w * 0.95 - 1, 0, tmp_w, tmp_h]).convert('RGB').save(f"data/bg_base/{fname}/3.jpg")
             tmpimg.crop([0,tmp_h * 0.95 - 1, tmp_w , tmp_h]).convert('RGB').save(f"data/bg_base/{fname}/4.jpg")
+            # 这里存放了，属性信息。。为了解耦合，height的mean和标准差需要分别计算。计算完成后，进行归一化，然后，再次计算uni_width的mean和标准差。
+            self.widthList.append(tmp_w)
+            self.heightList.append(tmp_h)
+            self.labelLenList.append(len(content))
             self.textureList.append([tmp_w, tmp_h, content, f"data/bg_base/{fname}"])
             ### table line 和random space个16张。。bg和blur个8张。。。
-            x1 = dict(strict="", 
-                           tag=f"{fname}", 
-                           num_img=f"{per_img_num}", 
-                           config_file=f"{conf}", 
-                          corpus_dir=f"{corpus_f}", 
-                          fonts_list="data/fonts_list/base_chn.txt",
-                          corpus_mode="list", 
-                          output_dir=f"{self.o_dir}")
-            x1['config_file'] = 'configs/mix_data_line.yaml'
-            x1['num_img'] = 64
-            x1['img_width'] = tmp_w
-            x1['img_height'] = tmp_h
-            self.configs.append(x1)
+            # x1 = dict(strict="", 
+            #                tag=f"{fname}", 
+            #                num_img=f"{per_img_num}", 
+            #                config_file=f"{conf}", 
+            #               corpus_dir=f"{corpus_f}", 
+            #               fonts_list="data/fonts_list/base_chn.txt",
+            #               corpus_mode="list", 
+            #               output_dir=f"{self.o_dir}")
+            # x1['config_file'] = 'configs/mix_data_line.yaml'
+            # x1['num_img'] = 64
+            # x1['img_width'] = tmp_w
+            # x1['img_height'] = tmp_h
+            # self.configs.append(x1)
             # # 判断是否含有三个空格，如果
             # if "   " not in content:
             #     x2 = dict(strict="", 
@@ -112,23 +129,65 @@ class gexinghuaRunner:
             # x4['img_width'] = tmp_w
             # x4['img_height'] = tmp_h                       
             # self.configs.append(x4)
-            # # 重型mix_mix
-            # x5 = dict(strict="", 
-            #                tag=f"{fname}", 
-            #                num_img=f"{per_img_num}", 
-            #                config_file=f"{conf}", 
-            #               corpus_dir=f"{corpus_f}", 
-            #               corpus_mode="list", 
-            #               output_dir=f"{self.o_dir}")
-            # x5['config_file'] = 'configs/mix_data_mix.yaml'
-            # x5['num_img'] = 128
-            # x5['img_width'] = tmp_w
-            # x5['img_height'] = tmp_h                     
-            # self.configs.append(x5)            
+            # 重型mix_mix
+            x5 = dict(strict="", 
+                           tag=f"{fname}", 
+                           num_img=f"{per_img_num}", 
+                           config_file=f"{conf}", 
+                          corpus_dir=f"{corpus_f}", 
+                          corpus_mode="list", 
+                          output_dir=f"{self.o_dir}")
+            x5['config_file'] = 'configs/mix_data_mix.yaml'
+            x5['num_img'] = 256
+            x5['bg_dir'] = f"data/bg_base/{fname}"
+            x5['img_width'] = tmp_w
+            x5['img_height'] = tmp_h                     
+            self.configs_mix.append(x5)            
         # 把纹理特征存储起来以供后面使用。。注意程序的border。。
         self.df = pd.DataFrame(np.array(self.textureList), columns=['width', 'height', 'char_distribute', 'bg_store'])     
         subprocess.getoutput("rm -rf data/base_texture.pkl")
         self.df.to_pickle("data/base_texture.pkl")
+        self.__getUniSize__()
+
+    def __counter__(self, i, a, b):
+        counter = 0
+        for e in i:
+            if e > math.floor(a) and e < math.floor(b):
+                counter += 1
+        return counter
+
+    def getStat(self, i):
+        # i是待评估的list。 按照顺序存放，mean, 标准差，
+        result = []
+        a = statistics.mean(i)
+        b = statistics.stdev(i)
+        size = len(i)/1.0
+        result.append(a)
+        result.append(b)
+        #统计一阶标准差，二阶标准差，三阶标准差占比
+        result.append(self.__counter__(i, a - b,  a + b) / size)
+        result.append(self.__counter__(i, a - 2*b,  a + 2*b) / size)
+        result.append(self.__counter__(i, a - 3*b,  a + 3*b) / size)                       
+        return result
+
+    def __getUniSize__(self):
+        # 去统计图片的数据情况。主要是高和宽。。返回的是，统一以后的长度。。
+        # 这个结果，主要是用于resize图片。。
+        # 第一步得到height的分布情况。。
+        t_height_stat = self.getStat(self.heightList)
+        a_mean = t_height_stat[0]
+        a_stddev = t_height_stat[1]
+        self.uni_h = math.floor(a_mean + 2.0 * a_stddev)
+        # 第二步，统计归一化以后的情况。。
+        tmp_w_list = []
+        for e, f in zip(self.widthList, self.heightList):
+            t_scale = f * 1.0 / self.uni_h
+            tmp_w_list.append(math.floor(e * 1.0 / t_scale))
+        t_width_stat = self.getStat(tmp_w_list)
+        b_mean = t_width_stat[0]
+        b_stddev = t_width_stat[1]
+        self.uni_w = math.floor(b_mean + 2.0 * b_stddev)
+
     def __dict_to_args__(self, config: dict):
         args = []
         for k, v in config.items():
@@ -137,15 +196,22 @@ class gexinghuaRunner:
             args.append('--%s' % k)
             args.append('%s' % v)
         return args
+
     def run_gen(self):
         self.main_func = './main.py'
         # 先做一些清理工作。
         if os.path.exists(self.o_dir):
             shutil.rmtree(self.o_dir)
-        for config in self.configs:
+        # 对于base的东西使用shell进行调用。。
+        for config in self.configs_base:
+            args = self.__dict_to_args__(config)
+            # print("Run with args: %s" % args)
+            subprocess.run(['sh', "exe_original.sh"] + [" ".join([str(e) for e in args])])
+        for config in self.configs_mix:
             args = self.__dict_to_args__(config)
             print("Run with args: %s" % args)
             subprocess.run(['python', self.main_func] + args)
+            
     def merge_result(self, out_suffix="_result"):
         self.out = self.o_dir + out_suffix
         if os.path.exists(self.out):
@@ -174,6 +240,7 @@ class gexinghuaRunner:
         self.__create__()
         self.__getIndex__()
         self.imgdirlist.append(self.out)
+
     def __create__(self):
         self.diclist = []
         for file in self.filelist:
@@ -191,6 +258,7 @@ class gexinghuaRunner:
         with open(os.path.join(self.out, "keys.txt"), "w", encoding='utf-8') as kf:
             for i in self.keys:
                 kf.write(i + "\n")
+
     def __getIndex__(self):
         for file in self.filelist:
             basename = os.path.basename(file)
@@ -207,9 +275,8 @@ class gexinghuaRunner:
                         if e != " ":
                             indf.write(" " + str(self.keys.index(e)))
                     indf.write("\n")
-#     def getUniSize(self):
-        # 去统计图片的数据情况。主要是高和宽。。返回的是，统一以后的长度。。
-    def resizeImg(self, unih=32, uniw=686, result_suffix="_fixresize"):
+
+    def resizeImg(self, result_suffix="_fixresize"):
         # 预测函数，要强行转化为32，686
         for img_dir in self.imgdirlist:            
             finout = img_dir + result_suffix
@@ -222,7 +289,7 @@ class gexinghuaRunner:
                 if '.jpg' in file or '.jpeg' in file:
                     # 打开图片然后resize就好。。
                     img = Image.open(file)
-                    img = img.resize((uniw,unih), Image.ANTIALIAS)
+                    img = img.resize((self.uni_w,self.uni_h), Image.ANTIALIAS)
                     img.convert('RGB').save(os.path.join(finout, filename))
                 else:
                     shutil.copy2(file, finout)
@@ -262,5 +329,6 @@ train_file="/Users/GuoLiuFang/Downloads/only_qishui_debug/rm.txt",
 o_dir="output/only_qishui_final"
 )
 x.run_gen()
-#x.merge_result(out_suffix="_glf_result_1")
+x.merge_result(out_suffix="_glf_result_1")
+x.resizeImg(result_suffix="_rz_fixresize_1")
 #resizeImg(result_suffix="_rz_fixresize_1")
