@@ -527,10 +527,10 @@ class Renderer(object):
 
     def apply_blur_on_output(self, img):
         # 我这里分别进行测试。
-        # if prob(0.5):
-        # return self.apply_gauss_blur(img)
-        # else:
-        return self.apply_norm_blur(img)
+        if prob(0.5):
+            return self.apply_gauss_blur(img)
+        else:
+            return self.apply_norm_blur(img)
 
     def apply_gauss_blur(self, img, ks=None):
         # cv2 shape的第一个维度是高height。。
