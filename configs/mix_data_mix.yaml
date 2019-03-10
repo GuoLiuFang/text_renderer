@@ -62,8 +62,8 @@ seamless_clone:
   fraction: 0.5
 
 perspective_transform:
-  max_x: 7
-  max_y: 7
+  max_x: 9
+  max_y: 9
   max_z: 3
 
 blur:

@@ -9,7 +9,7 @@ import numpy as np
 import math
 import statistics
 class gexinghuaRunner:
-    def __init__(self, image_dir_path="", train_file="", per_img_num=64, conf="configs/mix_data.yaml", corpus_dir="data/list_corpus", o_dir="output/mix_train"):
+    def __init__(self, image_dir_path="", train_file="", per_img_num=128, conf="configs/mix_data.yaml", corpus_dir="data/list_corpus", o_dir="output/mix_train"):
         # vim -d configs/default.yaml configs/mix_data.yaml
         # mkdir caonima; cd caonima; git clone ; checkout 
         tmp_prefix = "../../"
@@ -44,7 +44,7 @@ class gexinghuaRunner:
                            config_file=f"{conf}", 
                            # 语料属于公共所以，需要存放在上层文件夹中
                           corpus_dir=f"{tmp_prefix}{corpus_f}", 
-                          fonts_list="data/fonts_list/base_chn.txt",
+                          #fonts_list="data/fonts_list/base_chn.txt",
                           corpus_mode="list",
                           # 输出也是公共的 
                           output_dir=f"{tmp_prefix}{self.o_dir}")
@@ -148,6 +148,7 @@ class gexinghuaRunner:
         subprocess.getoutput("rm -rf data/base_texture.pkl")
         self.df.to_pickle("data/base_texture.pkl")
         self.__getUniSize__()
+        print(f"---uni_h={self.uni_h}-----uni_w={self.uni_w}--height,O_width, uni_width, labelLen--mean, stddev, min, max , median, stdrate, 2stdrate, 3stdrate--the distribution is{self.result} ")
 
     def __counter__(self, i, a, b):
         counter = 0
@@ -164,6 +165,9 @@ class gexinghuaRunner:
         size = len(i)/1.0
         result.append(a)
         result.append(b)
+        result.append(min(i))
+        result.append(max(i))
+        result.append(statistics.median(i))
         #统计一阶标准差，二阶标准差，三阶标准差占比
         result.append(self.__counter__(i, a - b,  a + b) / size)
         result.append(self.__counter__(i, a - 2*b,  a + 2*b) / size)
@@ -174,19 +178,31 @@ class gexinghuaRunner:
         # 去统计图片的数据情况。主要是高和宽。。返回的是，统一以后的长度。。
         # 这个结果，主要是用于resize图片。。
         # 第一步得到height的分布情况。。
+        self.result = []
         t_height_stat = self.getStat(self.heightList)
+        self.result.append(t_height_stat)
+        o_width_stat = self.getStat(self.widthList)
+        self.result.append(o_width_stat)
         a_mean = t_height_stat[0]
+        self.uni_h = 158
         a_stddev = t_height_stat[1]
-        self.uni_h = math.floor(a_mean + 2.0 * a_stddev)
+        if len(self.heightList) > 1024:
+            self.uni_h = math.floor(a_mean + 2.0 * a_stddev)
         # 第二步，统计归一化以后的情况。。
         tmp_w_list = []
         for e, f in zip(self.widthList, self.heightList):
             t_scale = f * 1.0 / self.uni_h
             tmp_w_list.append(math.floor(e * 1.0 / t_scale))
         t_width_stat = self.getStat(tmp_w_list)
+        self.result.append(t_width_stat)
         b_mean = t_width_stat[0]
+        self.uni_w = 686
         b_stddev = t_width_stat[1]
-        self.uni_w = math.floor(b_mean + 2.0 * b_stddev)
+        if len(self.widthList) > 1024:
+            self.uni_w = math.floor(b_mean + 2.0 * b_stddev)
+        # 统计长度的结果
+        o_label_len = self.getStat(self.labelLenList)
+        self.result.append(o_label_len)
 
     def __dict_to_args__(self, config: dict):
         args = []
@@ -278,6 +294,7 @@ class gexinghuaRunner:
 
     def resizeImg(self, result_suffix="_fixresize"):
         # 预测函数，要强行转化为32，686
+        print(f"----图片的目录是{self.imgdirlist}---")
         for img_dir in self.imgdirlist:            
             finout = img_dir + result_suffix
             if os.path.exists(finout):
@@ -297,7 +314,7 @@ class gexinghuaRunner:
         
 def resizeImg(unih=158, uniw=686, result_suffix="_fixresize"):
     # 预测函数，要强行转化为32，686
-    imgdirlist = ['/workspace/densent_ocr/only_qishui', 'output/only_qishui_final_glf_result_1']
+    imgdirlist = ['/workspace/densent_ocr/only_qishui_debug', 'output/only_debugi_final_debugesult_1']
     for img_dir in imgdirlist:
         finout = img_dir + result_suffix
         if os.path.exists(finout):
@@ -317,18 +334,15 @@ def resizeImg(unih=158, uniw=686, result_suffix="_fixresize"):
 
 
 
+#x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_debug",
+#train_file="/Users/GuoLiuFang/Downloads/only_qishui_debug/rm.txt",
+#o_dir="output/only_qishui_final")
 
-
-
-
-
-
-
-x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_debug",
-train_file="/Users/GuoLiuFang/Downloads/only_qishui_debug/rm.txt",
-o_dir="output/only_qishui_final"
+x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui_debug",
+train_file="/workspace/densent_ocr/only_qishui_debug/label_tmp_guaid_data_produce.txt_debug",
+o_dir="output/only_debug_keys1"
 )
 x.run_gen()
-x.merge_result(out_suffix="_glf_result_1")
-x.resizeImg(result_suffix="_rz_fixresize_1")
-#resizeImg(result_suffix="_rz_fixresize_1")
+x.merge_result(out_suffix="_mergekeys_1")
+x.resizeImg(result_suffix="_keysresize_1")
+#resizeImg(result_suffix="_resize_mean")
