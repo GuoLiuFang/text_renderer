@@ -269,6 +269,7 @@ class gexinghuaRunner:
                     tmp = tmp.replace("（", "(").replace("）", ")").replace("，", ",")
                     self.diclist.extend(tmp)
         self.counter = Counter(self.diclist)
+        print(f"--the distribution of the word is {self.counter}")
         # 把counter转化为字典，存储起来。
         self.keys = [' '] + sorted(list(self.counter))
         with open(os.path.join(self.out, "keys.txt"), "w", encoding='utf-8') as kf:
@@ -294,7 +295,7 @@ class gexinghuaRunner:
 
     def resizeImg(self, result_suffix="_fixresize"):
         # 预测函数，要强行转化为32，686
-        print(f"----图片的目录是{self.imgdirlist}---")
+        print(f"----image directory is {self.imgdirlist}---")
         for img_dir in self.imgdirlist:            
             finout = img_dir + result_suffix
             if os.path.exists(finout):
@@ -314,7 +315,7 @@ class gexinghuaRunner:
         
 def resizeImg(unih=158, uniw=686, result_suffix="_fixresize"):
     # 预测函数，要强行转化为32，686
-    imgdirlist = ['/workspace/densent_ocr/only_qishui_debug', 'output/only_debugi_final_debugesult_1']
+    imgdirlist = ['/workspace/densent_ocr/only_qishui_debug', 'output/only_debug_keys1_mergekeys_1']
     for img_dir in imgdirlist:
         finout = img_dir + result_suffix
         if os.path.exists(finout):
@@ -331,6 +332,44 @@ def resizeImg(unih=158, uniw=686, result_suffix="_fixresize"):
             else:
                 shutil.copy2(file, finout)
 
+def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
+    #image_name.jp*g<空格>content
+    # fix_label_file_l 和 merge_file_l是两个list。
+    filelist = fix_label_file_l + merge_file_l
+	diclist = []
+	for file in filelist:
+	    with open(file, encoding='utf-8') as f:
+	        for line in f:
+	            fname = line.split(" ")[0]
+	            tmp = line[len(fname):]
+	            tmp = tmp.strip().replace(" ","")
+	            # 在这里做全角转化为半角的转化
+	            tmp = tmp.replace("（", "(").replace("）", ")").replace("，", ",")
+	            diclist.extend(tmp)
+	#	输出字频分布情况
+	counter = Counter(diclist)
+	print(f"--the distribution of the word is {counter}")
+	# 把counter转化为字典，存储起来。
+	keys = [' '] + sorted(list(counter))
+	with open(os.path.join(out, "new_keys.txt"), "w", encoding='utf-8') as kf:
+	    for i in keys:
+	        kf.write(i + "\n")
+    # 接下来就是进行，字典转化的问题了。。。
+    for file in filelist:
+    basename = os.path.basename(file)
+    with open(file, encoding='utf-8') as f, open(file + "_with_new_index.txt", "w", encoding='utf-8') as indf:
+#             with open(file) as f, open(os.path.join(out, basename + "_with_index"), "w") as indf:
+        for line in f:
+            fname = line.split(" ")[0]
+            content = line[len(fname):]
+            content = content.strip().replace(" ","")
+            # 在这里做全角半角的转化。。
+            content = content.replace("（", "(").replace("）", ")").replace("，", ",")
+            indf.write(fname)
+            for e in content:
+                if e != " ":
+                    indf.write(" " + str(keys.index(e)))
+            indf.write("\n")
 
 
 
@@ -338,11 +377,11 @@ def resizeImg(unih=158, uniw=686, result_suffix="_fixresize"):
 #train_file="/Users/GuoLiuFang/Downloads/only_qishui_debug/rm.txt",
 #o_dir="output/only_qishui_final")
 
-x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui_debug",
-train_file="/workspace/densent_ocr/only_qishui_debug/label_tmp_guaid_data_produce.txt_debug",
-o_dir="output/only_debug_keys1"
-)
-x.run_gen()
-x.merge_result(out_suffix="_mergekeys_1")
-x.resizeImg(result_suffix="_keysresize_1")
-#resizeImg(result_suffix="_resize_mean")
+#x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui_debug",
+#train_file="/workspace/densent_ocr/only_qishui_debug/label_tmp_guaid_data_produce.txt_debug",
+#o_dir="output/only_debug_keys1"
+#)
+#x.run_gen()
+#x.merge_result(out_suffix="_mergekeys_1")
+#x.resizeImg(result_suffix="_keysresize_1")
+resizeImg(result_suffix="_keys_acsii")
