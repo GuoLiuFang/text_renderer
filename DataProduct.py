@@ -20,8 +20,7 @@ class gexinghuaRunner:
         self.imgdirlist = []
         self.imgdirlist.append(image_dir_path)
         self.o_dir = o_dir
-        self.configs_base = []
-        self.configs_mix = []
+        self.configs = []
         self.filelist = []
         self.textureList = []
         self.filelist.append(train_file)
@@ -53,7 +52,7 @@ class gexinghuaRunner:
             tmp_h = tmpimg.size[1]
             tmpdict['img_width'] = tmp_w
             tmpdict['img_height'] = tmp_h
-            self.configs_base.append(tmpdict)
+            self.configs.append((tmpdict, True))
             ### 新增纹理信息收集texture..以及bg的。。
 #             parser.add_argument('--bg_dir', type=str, default='./data/bg',
 #                         help="Some text images(according to your config in yaml file) will"
@@ -85,7 +84,7 @@ class gexinghuaRunner:
             x1['num_img'] = 79
             x1['img_width'] = tmp_w
             x1['img_height'] = tmp_h
-            self.configs_base.append(x1)
+            self.configs.append((x1, True))
             # # 判断是否含有三个空格，如果
             # if "   " not in content:
             #     x2 = dict(strict="", 
@@ -143,7 +142,7 @@ class gexinghuaRunner:
             x5['bg_dir'] = f"data/bg_base/{fname}"
             x5['img_width'] = tmp_w
             x5['img_height'] = tmp_h                     
-            self.configs_mix.append(x5)            
+            self.configs.append((x5, False))
         # 把纹理特征存储起来以供后面使用。。注意程序的border。。
         self.df = pd.DataFrame(np.array(self.textureList), columns=['width', 'height', 'char_distribute', 'bg_store'])     
         subprocess.getoutput("rm -rf data/base_texture.pkl")
@@ -220,14 +219,13 @@ class gexinghuaRunner:
         if os.path.exists(self.o_dir):
             shutil.rmtree(self.o_dir)
         # 对于base的东西使用shell进行调用。。
-        for config in self.configs_base:
+        for config, flag in self.configs:
             args = self.__dict_to_args__(config)
             print("Run with args: %s" % args)
-            subprocess.run(['sh', "exe_original.sh"] + [" ".join([str(e) for e in args])])
-        for config in self.configs_mix:
-            args = self.__dict_to_args__(config)
-            print("Run with args: %s" % args)
-            subprocess.run(['python', self.main_func] + args)
+            if flag:
+                subprocess.run(['sh', "exe_original.sh"] + [" ".join([str(e) for e in args])])
+            else:
+                subprocess.run(['python', self.main_func] + args)
             
     def merge_result(self, out_suffix="_result"):
         self.out = self.o_dir + out_suffix
