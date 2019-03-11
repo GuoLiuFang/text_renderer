@@ -10,7 +10,7 @@ class LineState(object):
 
     # 0/1/2/3: 仅单边（左上右下）
     # 4/5/6/7: 两边都有线（左上，右上，右下，左下）
-    tableline_options = [0, 2, 0, 2, 0, 2, 10, 11, 10, 11, 10, 11, 9, 9, 9, 1, 3, 1, 3, 4, 5, 6, 7]
+    tableline_options = [0, 2, 3, 3, 0, 2, 0, 2, 10, 11, 10, 11, 10, 11, 9, 9, 9, 1, 3, 1, 3, 4, 5, 6, 7, 6, 7, 6, 7, 6, 7, 7, 7]
     # tableline_options = range(0, 8)
 
     middleline_thickness = [1, 2]
@@ -51,7 +51,7 @@ class Liner(object):
         return line_effect_func(word_img, text_box_pnts, word_color)
 
     def apply_under_line(self, word_img, text_box_pnts, word_color):
-        y_offset = random.choice([-1, 0, 1])
+        y_offset = random.choice([-1, -1, 0, 1, 0, 1, 0, 1, 0, 1, 3, 3, 3, 4, 5, 2, 2])
 
         text_box_pnts[2][1] += y_offset
         text_box_pnts[3][1] += y_offset

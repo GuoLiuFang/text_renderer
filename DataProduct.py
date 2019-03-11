@@ -9,7 +9,7 @@ import numpy as np
 import math
 import statistics
 class gexinghuaRunner:
-    def __init__(self, image_dir_path="", train_file="", per_img_num=128, conf="configs/mix_data.yaml", corpus_dir="data/list_corpus", o_dir="output/mix_train"):
+    def __init__(self, image_dir_path="", train_file="", per_img_num=49, conf="configs/mix_data_line.yaml", corpus_dir="data/list_corpus", o_dir="output/mix_train"):
         # vim -d configs/default.yaml configs/mix_data.yaml
         # mkdir caonima; cd caonima; git clone ; checkout 
         tmp_prefix = "../../"
@@ -72,19 +72,20 @@ class gexinghuaRunner:
             self.labelLenList.append(len(content))
             self.textureList.append([tmp_w, tmp_h, content, f"data/bg_base/{fname}"])
             ### table line 和random space个16张。。bg和blur个8张。。。
-            # x1 = dict(strict="", 
-            #                tag=f"{fname}", 
-            #                num_img=f"{per_img_num}", 
-            #                config_file=f"{conf}", 
-            #               corpus_dir=f"{corpus_f}", 
-            #               fonts_list="data/fonts_list/base_chn.txt",
-            #               corpus_mode="list", 
-            #               output_dir=f"{self.o_dir}")
-            # x1['config_file'] = 'configs/mix_data_line.yaml'
-            # x1['num_img'] = 64
-            # x1['img_width'] = tmp_w
-            # x1['img_height'] = tmp_h
-            # self.configs.append(x1)
+            x1 = dict(strict="",
+                           tag=f"{fname}",
+                           num_img=f"{per_img_num}",
+                           config_file=f"{conf}",
+                          corpus_dir=f"{tmp_prefix}{corpus_f}",
+                          #fonts_list="data/fonts_list/base_chn.txt",
+                          corpus_mode="list",
+                          # 输出也是公共的
+                          output_dir=f"{tmp_prefix}{self.o_dir}")
+            x1['config_file'] = 'configs/mix_data.yaml'
+            x1['num_img'] = 79
+            x1['img_width'] = tmp_w
+            x1['img_height'] = tmp_h
+            self.configs_base.append(x1)
             # # 判断是否含有三个空格，如果
             # if "   " not in content:
             #     x2 = dict(strict="", 
@@ -130,12 +131,12 @@ class gexinghuaRunner:
             # x4['img_height'] = tmp_h                       
             # self.configs.append(x4)
             # 重型mix_mix
-            x5 = dict(strict="", 
-                           tag=f"{fname}", 
-                           num_img=f"{per_img_num}", 
-                           config_file=f"{conf}", 
-                          corpus_dir=f"{corpus_f}", 
-                          corpus_mode="list", 
+            x5 = dict(strict="",
+                           tag=f"{fname}",
+                           num_img=f"{per_img_num}",
+                           config_file=f"{conf}",
+                          corpus_dir=f"{corpus_f}",
+                          corpus_mode="list",
                           output_dir=f"{self.o_dir}")
             x5['config_file'] = 'configs/mix_data_mix.yaml'
             x5['num_img'] = 256
@@ -221,7 +222,7 @@ class gexinghuaRunner:
         # 对于base的东西使用shell进行调用。。
         for config in self.configs_base:
             args = self.__dict_to_args__(config)
-            # print("Run with args: %s" % args)
+            print("Run with args: %s" % args)
             subprocess.run(['sh', "exe_original.sh"] + [" ".join([str(e) for e in args])])
         for config in self.configs_mix:
             args = self.__dict_to_args__(config)
@@ -336,52 +337,52 @@ def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
     #image_name.jp*g<空格>content
     # fix_label_file_l 和 merge_file_l是两个list。
     filelist = fix_label_file_l + merge_file_l
-	diclist = []
-	for file in filelist:
-	    with open(file, encoding='utf-8') as f:
-	        for line in f:
-	            fname = line.split(" ")[0]
-	            tmp = line[len(fname):]
-	            tmp = tmp.strip().replace(" ","")
-	            # 在这里做全角转化为半角的转化
-	            tmp = tmp.replace("（", "(").replace("）", ")").replace("，", ",")
-	            diclist.extend(tmp)
+    diclist = []
+    for file in filelist:
+        with open(file, encoding='utf-8') as f:
+            for line in f:
+                fname = line.split(" ")[0]
+                tmp = line[len(fname):]
+                tmp = tmp.strip().replace(" ","")
+                # 在这里做全角转化为半角的转化
+                tmp = tmp.replace("（", "(").replace("）", ")").replace("，", ",")
+                diclist.extend(tmp)
 	#	输出字频分布情况
-	counter = Counter(diclist)
-	print(f"--the distribution of the word is {counter}")
-	# 把counter转化为字典，存储起来。
-	keys = [' '] + sorted(list(counter))
-	with open(os.path.join(out, "new_keys.txt"), "w", encoding='utf-8') as kf:
-	    for i in keys:
-	        kf.write(i + "\n")
+    counter = Counter(diclist)
+    print(f"--the distribution of the word is {counter}")
+    # 把counter转化为字典，存储起来。
+    keys = [' '] + sorted(list(counter))
+    with open(os.path.join(out, "new_keys.txt"), "w", encoding='utf-8') as kf:
+        for i in keys:
+            kf.write(i + "\n")
     # 接下来就是进行，字典转化的问题了。。。
     for file in filelist:
-    basename = os.path.basename(file)
-    with open(file, encoding='utf-8') as f, open(file + "_with_new_index.txt", "w", encoding='utf-8') as indf:
-#             with open(file) as f, open(os.path.join(out, basename + "_with_index"), "w") as indf:
-        for line in f:
-            fname = line.split(" ")[0]
-            content = line[len(fname):]
-            content = content.strip().replace(" ","")
-            # 在这里做全角半角的转化。。
-            content = content.replace("（", "(").replace("）", ")").replace("，", ",")
-            indf.write(fname)
-            for e in content:
-                if e != " ":
-                    indf.write(" " + str(keys.index(e)))
-            indf.write("\n")
+        basename = os.path.basename(file)
+        with open(file, encoding='utf-8') as f, open(file + "_with_new_index.txt", "w", encoding='utf-8') as indf:
+        #             with open(file) as f, open(os.path.join(out, basename + "_with_index"), "w") as indf:
+            for line in f:
+                fname = line.split(" ")[0]
+                content = line[len(fname):]
+                content = content.strip().replace(" ","")
+                # 在这里做全角半角的转化。。
+                content = content.replace("（", "(").replace("）", ")").replace("，", ",")
+                indf.write(fname)
+                for e in content:
+                    if e != " ":
+                        indf.write(" " + str(keys.index(e)))
+                indf.write("\n")
 
 
 
-#x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_debug",
-#train_file="/Users/GuoLiuFang/Downloads/only_qishui_debug/rm.txt",
-#o_dir="output/only_qishui_final")
+x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_debug",
+train_file="/Users/GuoLiuFang/Downloads/only_qishui_debug/rm.txt",
+o_dir="output/only_qishui_final")
 
 #x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui_debug",
 #train_file="/workspace/densent_ocr/only_qishui_debug/label_tmp_guaid_data_produce.txt_debug",
 #o_dir="output/only_debug_keys1"
 #)
-#x.run_gen()
-#x.merge_result(out_suffix="_mergekeys_1")
-#x.resizeImg(result_suffix="_keysresize_1")
-resizeImg(result_suffix="_keys_acsii")
+x.run_gen()
+x.merge_result(out_suffix="_mergekeys_1")
+x.resizeImg(result_suffix="_keysresize_1")
+# resizeImg(result_suffix="_keys_acsii")
