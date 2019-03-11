@@ -18,7 +18,8 @@
 ./data/fonts/chn/STXINWEI.TTF
 ./data/fonts/chn/msyhbd.ttc
 ./data/fonts/chn/simhei.ttf
-./data/fonts/chn/simsunb.ttf./data/fonts/chn/Deng.ttf
+./data/fonts/chn/simsunb.ttf
+./data/fonts/chn/Deng.ttf
 ./data/fonts/chn/STFANGSO.TTF
 ./data/fonts/chn/STSONG.TTF
 ./data/fonts/chn/STZHONGS.TTF

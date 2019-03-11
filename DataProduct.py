@@ -374,15 +374,15 @@ def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
 
 
 
-x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_debug",
-train_file="/Users/GuoLiuFang/Downloads/only_qishui_debug/rm.txt",
-o_dir="output/only_qishui_final")
+#x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_debug",
+#train_file="/Users/GuoLiuFang/Downloads/only_qishui_debug/rm.txt",
+#o_dir="output/only_qishui_final")
 
-#x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui_debug",
-#train_file="/workspace/densent_ocr/only_qishui_debug/label_tmp_guaid_data_produce.txt_debug",
-#o_dir="output/only_debug_keys1"
-#)
+x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui_debug",
+train_file="/workspace/densent_ocr/only_qishui_debug/label_tmp_guaid_data_produce.txt_debug",
+o_dir="output/only_finetune"
+)
 x.run_gen()
-x.merge_result(out_suffix="_mergekeys_1")
-x.resizeImg(result_suffix="_keysresize_1")
+x.merge_result(out_suffix="_fine_1")
+x.resizeImg(result_suffix="_fineresize_1")
 # resizeImg(result_suffix="_keys_acsii")
