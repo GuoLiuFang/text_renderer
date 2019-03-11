@@ -102,11 +102,11 @@ line:
 
   under_line:
     enable: false
-    fraction: 0.35
+    fraction: 0.15
 
   table_line:
     enable: false
-    fraction: 0.6
+    fraction: 0.8
 
   middle_line:
     enable: false

@@ -10,7 +10,7 @@ class LineState(object):
 
     # 0/1/2/3: 仅单边（左上右下）
     # 4/5/6/7: 两边都有线（左上，右上，右下，左下）
-    tableline_options = [0, 1, 2, 3, 4, 5, 6, 7, 3, 7, 3, 7]
+    tableline_options = range(0, 8)
 
     middleline_thickness = [1, 2, 3]
     middleline_thickness_p = [0.2, 0.7, 0.1]
