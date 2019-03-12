@@ -68,7 +68,7 @@ perspective_transform:
 
 blur:
   enable: true
-  fraction: 0.236
+  fraction: 0.382
 
 # If an image is applied blur, it will not be applied prydown
 prydown:

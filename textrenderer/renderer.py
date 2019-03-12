@@ -537,11 +537,11 @@ class Renderer(object):
         t_img_h = img.shape[0]
         if t_img_h <= 32:
             ks = [3, 5]
-            sigmas = [1, 2, 3]
+            sigmas = [3, 4, 5]
         # <= 32的代码搞定，不要再动了。
         elif t_img_h <= 64:
             ks = [7, 9]
-            sigmas = [5, 6, 7]
+            sigmas = [7, 8, 9]
         # <= 64的代码搞定，不要再动了。
         elif t_img_h <= 128:
             ks = [15, 17, 19]
@@ -562,10 +562,10 @@ class Renderer(object):
         # cv2 shape的第一个维度是高height。。
         t_img_h = img.shape[0]
         if t_img_h <= 32:
-            ks = list(range(3,5))
+            ks = list(range(3,6))
         # <= 32的代码搞定，不要再动了。
         elif t_img_h <= 64:
-            ks = list(range(7, 9))
+            ks = list(range(7, 10))
         # <= 64的代码搞定，不要再动了。
         elif t_img_h <= 128:
             ks = list(range(13, 18))

@@ -4,17 +4,17 @@ import numpy as np
 import math
 
 class LineState(object):
-    tableline_x_offsets = range(8, 32)
-    tableline_y_offsets = range(2, 8)
-    tableline_thickness = [1, 1, 1, 1, 1, 1, 1, 2, 2]
+    tableline_x_offsets = range(8, 40)
+    tableline_y_offsets = range(3, 10)
+    tableline_thickness = [1, 2, 2, 2, 2, 2, 2, 2, 2, 3]
 
     # 0/1/2/3: 仅单边（左上右下）
     # 4/5/6/7: 两边都有线（左上，右上，右下，左下）
-    tableline_options = [0, 2, 3, 3, 0, 2, 0, 2, 10, 11, 10, 11, 10, 11, 9, 9, 9, 1, 3, 1, 3, 4, 5, 6, 7, 6, 7, 6, 7, 6, 7, 7, 7, 7, 7]
+    tableline_options = [0, 2, 3, 3, 0, 2, 0, 2, 10, 11, 10, 11, 10, 11, 9, 9, 9, 1, 3, 1, 3, 4, 5, 6, 7, 6, 7, 6, 7, 6, 7, 7, 7]
     # tableline_options = range(0, 8)
 
-    middleline_thickness = [1, 2]
-    middleline_thickness_p = [0.2, 0.8]
+    middleline_thickness = [1, 2, 3]
+    middleline_thickness_p = [0.2, 0.7, 0.1]
 
 
 class Liner(object):
