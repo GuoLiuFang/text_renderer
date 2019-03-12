@@ -36,8 +36,9 @@ class gexinghuaRunner:
             os.makedirs(corpus_f)
             with open(f"{corpus_f}/{fname}.txt", "w", encoding='utf-8') as tmpf:
                 tmpf.write(f"{content}\n")
+            # tag = fname这样会在多线程的时候，造成写并发的发生。所以，要改一下。。
             tmpdict = dict(strict="", 
-                           tag=f"{fname}", 
+                           tag=f"{fname}.line",
                            num_img=f"{per_img_num}",
                            # 配置文件是当前文件夹，自己的配置文件。 
                            config_file=f"{conf}", 
@@ -62,9 +63,9 @@ class gexinghuaRunner:
                 shutil.rmtree(f"data/bg_base/{fname}")
             os.makedirs(f"data/bg_base/{fname}", exist_ok=True)
             tmpimg.crop([0, 0, tmp_w * 0.05 + 1, tmp_h]).convert('RGB').save(f"data/bg_base/{fname}/1.jpg")
-            tmpimg.crop([0, 0, tmp_w, tmp_h * 0.05 + 1]).convert('RGB').save(f"data/bg_base/{fname}/2.jpg")
+            # tmpimg.crop([0, 0, tmp_w, tmp_h * 0.05 + 1]).convert('RGB').save(f"data/bg_base/{fname}/2.jpg")
             tmpimg.crop([tmp_w * 0.95 - 1, 0, tmp_w, tmp_h]).convert('RGB').save(f"data/bg_base/{fname}/3.jpg")
-            tmpimg.crop([0,tmp_h * 0.95 - 1, tmp_w , tmp_h]).convert('RGB').save(f"data/bg_base/{fname}/4.jpg")
+            # tmpimg.crop([0,tmp_h * 0.95 - 1, tmp_w , tmp_h]).convert('RGB').save(f"data/bg_base/{fname}/4.jpg")
             # 这里存放了，属性信息。。为了解耦合，height的mean和标准差需要分别计算。计算完成后，进行归一化，然后，再次计算uni_width的mean和标准差。
             self.widthList.append(tmp_w)
             self.heightList.append(tmp_h)
@@ -72,7 +73,7 @@ class gexinghuaRunner:
             self.textureList.append([tmp_w, tmp_h, content, f"data/bg_base/{fname}"])
             ### table line 和random space个16张。。bg和blur个8张。。。
             x1 = dict(strict="",
-                           tag=f"{fname}",
+                           tag=f"{fname}.noLine",
                            num_img=f"{per_img_num}",
                            config_file=f"{conf}",
                           corpus_dir=f"{tmp_prefix}{corpus_f}",
@@ -131,7 +132,7 @@ class gexinghuaRunner:
             # self.configs.append(x4)
             # 重型mix_mix
             x5 = dict(strict="",
-                           tag=f"{fname}",
+                           tag=f"{fname}.customer",
                            num_img=f"{per_img_num}",
                            config_file=f"{conf}",
                           corpus_dir=f"{corpus_f}",
@@ -239,7 +240,7 @@ class gexinghuaRunner:
                     # 读取文件内容，然后进行复制操作。
                     basename = dir_path.split("/")[-1]
                     if not basename.startswith("."):
-                        basename = basename.split(".")[0] + "_"
+                        basename = basename.split(".")[0] + "_" + basename.split(".")[-1] + "_"
                         with open(os.path.join(dir_path, "tmp_labels.txt"), encoding='utf-8') as f:
                             tmp_flist = [str(line).strip() for line in f.readlines()]
                         for line in tmp_flist:
@@ -268,7 +269,9 @@ class gexinghuaRunner:
                     tmp = tmp.replace("（", "(").replace("）", ")").replace("，", ",")
                     self.diclist.extend(tmp)
         self.counter = Counter(self.diclist)
-        print(f"--the distribution of the word is {self.counter}")
+        with open(os.path.join(self.out, "word_distribution.txt"), "w", encoding='utf-8') as wdf:
+            wdf.write(f"--the distribution of the word is {self.counter}")
+        # print(f"--the distribution of the word is {self.counter}")
         # 把counter转化为字典，存储起来。
         self.keys = [' '] + sorted(list(self.counter))
         with open(os.path.join(self.out, "keys.txt"), "w", encoding='utf-8') as kf:
@@ -372,15 +375,15 @@ def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
 
 
 
-#x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_debug",
-#train_file="/Users/GuoLiuFang/Downloads/only_qishui_debug/rm.txt",
-#o_dir="output/only_qishui_final")
+# x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_debug",
+# train_file="/Users/GuoLiuFang/Downloads/only_qishui_debug/rm.txt",
+# o_dir="output/only_qishui_final")
 
-x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui_debug",
-train_file="/workspace/densent_ocr/only_qishui_debug/label_tmp_guaid_data_produce.txt_debug",
-o_dir="output/only_finetune"
+x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui_stdard",
+train_file="/workspace/densent_ocr/only_qishui_stdard/label_tmp_all20190311.txt",
+o_dir="output/only_all"
 )
 x.run_gen()
-x.merge_result(out_suffix="_fine_1")
-x.resizeImg(result_suffix="_fineresize_1")
+x.merge_result(out_suffix="_allmerge")
+x.resizeImg(result_suffix="_allresize_1")
 # resizeImg(result_suffix="_keys_acsii")
