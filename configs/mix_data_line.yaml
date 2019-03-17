@@ -68,7 +68,7 @@ perspective_transform:
 
 blur:
   enable: true
-  fraction: 0.618
+  fraction: 0.146
 
 # If an image is applied blur, it will not be applied prydown
 prydown:
@@ -78,7 +78,7 @@ prydown:
 
 noise:
   enable: true
-  fraction: 0.618
+  fraction: 0.382
 
   gauss:
     enable: true

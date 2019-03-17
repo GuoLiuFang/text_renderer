@@ -1,6 +1,6 @@
 # Small font_size will make text looks like blured/prydown
 font_size:
-  min: 10
+  min: 16
   max: 32
 
 # By default, text is drawed by Pillow with (https://stackoverflow.com/questions/43828955/measuring-width-of-text-python-pil)
@@ -36,7 +36,7 @@ crop:
 # Use image in bg_dir as background for text
 img_bg:
   enable: true
-  fraction: 0.5
+  fraction: 1
 
 # Not work when random_space applied
 text_border:
@@ -62,13 +62,13 @@ seamless_clone:
   fraction: 0.5
 
 perspective_transform:
-  max_x: 3
-  max_y: 3
-  max_z: 3
+  max_x: 0
+  max_y: 0
+  max_z: 0
 
 blur:
   enable: true
-  fraction: 0.146
+  fraction: 0.03
 
 # If an image is applied blur, it will not be applied prydown
 prydown:
@@ -78,7 +78,7 @@ prydown:
 
 noise:
   enable: true
-  fraction: 0.382
+  fraction: 0.3
 
   gauss:
     enable: true
