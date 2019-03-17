@@ -187,7 +187,7 @@ class gexinghuaRunner:
         a_mean = t_height_stat[0]
         self.uni_h = 158
         a_stddev = t_height_stat[1]
-        if len(self.heightList) > 1024:
+        if len(self.heightList) > 4096:
             self.uni_h = math.floor(a_mean + 2.0 * a_stddev)
         # 第二步，统计归一化以后的情况。。
         tmp_w_list = []
@@ -199,7 +199,7 @@ class gexinghuaRunner:
         b_mean = t_width_stat[0]
         self.uni_w = 686
         b_stddev = t_width_stat[1]
-        if len(self.widthList) > 1024:
+        if len(self.widthList) > 4096:
             self.uni_w = math.floor(b_mean + 2.0 * b_stddev)
         # 统计长度的结果
         o_label_len = self.getStat(self.labelLenList)
@@ -381,9 +381,9 @@ def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
 
 x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui_stdard",
 train_file="/workspace/densent_ocr/only_qishui_stdard/label_tmp_all20190311.txt",
-o_dir="output/only_all"
+o_dir="output/standard_all"
 )
 x.run_gen()
-x.merge_result(out_suffix="_allmerge")
-x.resizeImg(result_suffix="_allresize_1")
+x.merge_result(out_suffix="_standardallmerge")
+x.resizeImg(result_suffix="_standardallresize")
 # resizeImg(result_suffix="_keys_acsii")
