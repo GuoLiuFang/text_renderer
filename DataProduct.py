@@ -9,7 +9,7 @@ import numpy as np
 import math
 import statistics
 class gexinghuaRunner:
-    def __init__(self, image_dir_path="", train_file="", per_img_num=49, conf="configs/mix_data_line.yaml", corpus_dir="data/list_corpus", o_dir="output/mix_train"):
+    def __init__(self, image_dir_path="", train_file="", per_img_num=96, conf="configs/mix_data.yaml", corpus_dir="data/list_corpus", o_dir="output/mix_train"):
         # vim -d configs/default.yaml configs/mix_data.yaml
         # mkdir caonima; cd caonima; git clone ; checkout 
         tmp_prefix = "../../"
@@ -38,13 +38,13 @@ class gexinghuaRunner:
                 tmpf.write(f"{content}\n")
             # tag = fname这样会在多线程的时候，造成写并发的发生。所以，要改一下。。
             tmpdict = dict(strict="", 
-                           tag=f"{fname}.line",
+                           tag=f"{fname}.noline",
                            num_img=f"{per_img_num}",
                            # 配置文件是当前文件夹，自己的配置文件。 
                            config_file=f"{conf}", 
                            # 语料属于公共所以，需要存放在上层文件夹中
                           corpus_dir=f"{tmp_prefix}{corpus_f}", 
-                          #fonts_list="data/fonts_list/base_chn.txt",
+                          fonts_list="data/fonts_list/base_chn.txt",
                           corpus_mode="list",
                           # 输出也是公共的 
                           output_dir=f"{tmp_prefix}{self.o_dir}")
@@ -73,16 +73,16 @@ class gexinghuaRunner:
             self.textureList.append([tmp_w, tmp_h, content, f"data/bg_base/{fname}"])
             ### table line 和random space个16张。。bg和blur个8张。。。
             x1 = dict(strict="",
-                           tag=f"{fname}.noLine",
+                           tag=f"{fname}.line",
                            num_img=f"{per_img_num}",
                            config_file=f"{conf}",
                           corpus_dir=f"{tmp_prefix}{corpus_f}",
-                          #fonts_list="data/fonts_list/base_chn.txt",
+                          fonts_list="data/fonts_list/base_chn.txt",
                           corpus_mode="list",
                           # 输出也是公共的
                           output_dir=f"{tmp_prefix}{self.o_dir}")
-            x1['config_file'] = 'configs/mix_data.yaml'
-            x1['num_img'] = 79
+            x1['config_file'] = 'configs/mix_data_line.yaml'
+            x1['num_img'] = 32
             x1['img_width'] = tmp_w
             x1['img_height'] = tmp_h
             self.configs.append((x1, True))
