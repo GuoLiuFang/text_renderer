@@ -407,6 +407,6 @@ key_file="/Users/GuoLiuFang/Downloads/keys.txt"
 # o_dir="output/only_all"
 # )
 x.run_gen()
-x.merge_result(out_suffix="_allmerge")
-x.resizeImg(result_suffix="_allresize_1")
+x.merge_result(out_suffix="_standardallmerge")
+x.resizeImg(result_suffix="_standardallresize")
 # resizeImg(result_suffix="_keys_acsii")
