@@ -8,148 +8,135 @@ import pandas as pd
 import numpy as np
 import math
 import statistics
+import pickle
 class gexinghuaRunner:
-    def __init__(self, image_dir_path="", train_file="", per_img_num=96, conf="configs/mix_data.yaml", corpus_dir="data/list_corpus", o_dir="output/mix_train"):
-        # vim -d configs/default.yaml configs/mix_data.yaml
-        # mkdir caonima; cd caonima; git clone ; checkout 
-        tmp_prefix = "../../"
-        self.widthList = []
-        self.heightList = []
-        self.labelLenList = []
+    """
+        job_name中不能含有点.号。
+    """
 
-        self.imgdirlist = []
-        self.imgdirlist.append(image_dir_path)
-        self.o_dir = o_dir
-        self.configs = []
-        self.filelist = []
-        self.textureList = []
-        self.filelist.append(train_file)
+    def __base_have_image__(self, image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix):
+
         with open(os.path.join(image_dir_path, train_file), encoding='utf-8') as f:
             test_image_list = [str(line).strip() for line in f.readlines()]
+
         for line in test_image_list:
             fname = line.split(" ")[0]
             content = line[len(fname):]
             content = content.strip()
+
             corpus_f = os.path.join(corpus_dir, fname)
             if os.path.exists(corpus_f):
                 shutil.rmtree(corpus_f)
             os.makedirs(corpus_f)
             with open(f"{corpus_f}/{fname}.txt", "w", encoding='utf-8') as tmpf:
                 tmpf.write(f"{content}\n")
-            # tag = fname这样会在多线程的时候，造成写并发的发生。所以，要改一下。。
+
             tmpdict = dict(strict="", 
-                           tag=f"{fname}.noline",
-                           num_img=f"{per_img_num}",
-                           # 配置文件是当前文件夹，自己的配置文件。 
-                           config_file=f"{conf}", 
-                           # 语料属于公共所以，需要存放在上层文件夹中
-                          corpus_dir=f"{tmp_prefix}{corpus_f}", 
-                          fonts_list="data/fonts_list/base_chn.txt",
-                          corpus_mode="list",
-                          # 输出也是公共的 
-                          output_dir=f"{tmp_prefix}{self.o_dir}")
+                        tag=f"{job_name}-{fname}.noline",
+                        num_img=f"{per_img_num[0]}",
+                        config_file=f"{conf}",
+                        corpus_dir=f"{tmp_prefix}{corpus_f}",
+                        fonts_list="data/fonts_list/base_chn.txt",
+                        corpus_mode="list",
+                        output_dir=f"{tmp_prefix}{self.o_dir}")
+
             tmpimg = Image.open(os.path.join(image_dir_path, fname))
             tmp_w = tmpimg.size[0]
             tmp_h = tmpimg.size[1]
+
             tmpdict['img_width'] = tmp_w
             tmpdict['img_height'] = tmp_h
             self.configs.append((tmpdict, True))
-            ### 新增纹理信息收集texture..以及bg的。。
-#             parser.add_argument('--bg_dir', type=str, default='./data/bg',
-#                         help="Some text images(according to your config in yaml file) will"
-#                              "use pictures in this folder as background")            
-            # 在这里新建./data/bg_base/fname/然后这里存放内容就好。
-            if os.path.exists(f"data/bg_base/{fname}"):
-                shutil.rmtree(f"data/bg_base/{fname}")
-            os.makedirs(f"data/bg_base/{fname}", exist_ok=True)
-            tmpimg.crop([0, 0, tmp_w * 0.05 + 1, tmp_h]).convert('RGB').save(f"data/bg_base/{fname}/1.jpg")
-            # tmpimg.crop([0, 0, tmp_w, tmp_h * 0.05 + 1]).convert('RGB').save(f"data/bg_base/{fname}/2.jpg")
-            tmpimg.crop([tmp_w * 0.95 - 1, 0, tmp_w, tmp_h]).convert('RGB').save(f"data/bg_base/{fname}/3.jpg")
-            # tmpimg.crop([0,tmp_h * 0.95 - 1, tmp_w , tmp_h]).convert('RGB').save(f"data/bg_base/{fname}/4.jpg")
-            # 这里存放了，属性信息。。为了解耦合，height的mean和标准差需要分别计算。计算完成后，进行归一化，然后，再次计算uni_width的mean和标准差。
-            self.widthList.append(tmp_w)
-            self.heightList.append(tmp_h)
-            self.labelLenList.append(len(content))
-            self.textureList.append([tmp_w, tmp_h, content, f"data/bg_base/{fname}"])
-            ### table line 和random space个16张。。bg和blur个8张。。。
+
+            if not is_fix:
+                if os.path.exists(f"data/bg_base/{job_name}-{fname}"):
+                    shutil.rmtree(f"data/bg_base/{job_name}-{fname}")
+                os.makedirs(f"data/bg_base/{job_name}-{fname}", exist_ok=True)
+                tmpimg.crop([0, 0, tmp_w * 0.05 + 1, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}/1.jpg")
+                tmpimg.crop([tmp_w * 0.95 - 1, 0, tmp_w, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}/3.jpg")
+
+                self.widthList.append(tmp_w)
+                self.heightList.append(tmp_h)
+                self.labelLenList.append(len(content))
+                self.textureList.append([tmp_w, tmp_h, content, f"data/bg_base/{job_name}-{fname}"])
+
             x1 = dict(strict="",
-                           tag=f"{fname}.line",
-                           num_img=f"{per_img_num}",
-                           config_file=f"{conf}",
-                          corpus_dir=f"{tmp_prefix}{corpus_f}",
-                          fonts_list="data/fonts_list/base_chn.txt",
-                          corpus_mode="list",
-                          # 输出也是公共的
-                          output_dir=f"{tmp_prefix}{self.o_dir}")
+                        tag=f"{job_name}-{fname}.line",
+                        num_img=f"{per_img_num[1]}",
+                        config_file=f"{conf}",
+                        corpus_dir=f"{tmp_prefix}{corpus_f}",
+                        fonts_list="data/fonts_list/base_chn.txt",
+                        corpus_mode="list",
+                        output_dir=f"{tmp_prefix}{self.o_dir}")
             x1['config_file'] = 'configs/mix_data_line.yaml'
-            x1['num_img'] = 32
             x1['img_width'] = tmp_w
             x1['img_height'] = tmp_h
             self.configs.append((x1, True))
-            # # 判断是否含有三个空格，如果
-            # if "   " not in content:
-            #     x2 = dict(strict="", 
-            #                tag=f"{fname}", 
-            #                num_img=f"{per_img_num}", 
-            #                config_file=f"{conf}", 
-            #               corpus_dir=f"{corpus_f}", 
-            #               fonts_list="data/fonts_list/base_chn.txt",
-            #               corpus_mode="list", 
-            #               output_dir=f"{self.o_dir}")
-            #     x2['config_file'] = 'configs/mix_data_space.yaml'   
-            #     x2['num_img'] = 16
-            #     x2['img_width'] = tmp_w
-            #     x2['img_height'] = tmp_h                
-            #     self.configs.append(x2)
-            # # 接下来是添加bg和blur，各8张图片。。
-            # x3 = dict(strict="", 
-            #                tag=f"{fname}", 
-            #                num_img=f"{per_img_num}", 
-            #                config_file=f"{conf}", 
-            #               corpus_dir=f"{corpus_f}", 
-            #               fonts_list="data/fonts_list/base_chn.txt",
-            #               corpus_mode="list", 
-            #               output_dir=f"{self.o_dir}")
-            # x3['config_file'] = 'configs/mix_data_bg.yaml'
-            # x3['num_img'] = 32
-            # x3['bg_dir'] = f"data/bg_base/{fname}"
-            # x3['img_width'] = tmp_w
-            # x3['img_height'] = tmp_h
-            # self.configs.append(x3)
-            # blur 也是8张图片
-            # x4 = dict(strict="", 
-            #                tag=f"{fname}", 
-            #                num_img=f"{per_img_num}", 
-            #                config_file=f"{conf}", 
-            #               corpus_dir=f"{corpus_f}", 
-            #               fonts_list="data/fonts_list/base_chn.txt",
-            #               corpus_mode="list", 
-            #               output_dir=f"{self.o_dir}")
-            # x4['config_file'] = 'configs/mix_data_blur.yaml'
-            # x4['num_img'] = 32
-            # x4['img_width'] = tmp_w
-            # x4['img_height'] = tmp_h                       
-            # self.configs.append(x4)
-            # 重型mix_mix
+
             x5 = dict(strict="",
-                           tag=f"{fname}.customer",
-                           num_img=f"{per_img_num}",
-                           config_file=f"{conf}",
-                          corpus_dir=f"{corpus_f}",
-                          corpus_mode="list",
-                          output_dir=f"{self.o_dir}")
+                        tag=f"{job_name}-{fname}.customer",
+                        num_img=f"{per_img_num[2]}",
+                        config_file=f"{conf}",
+                        corpus_dir=f"{corpus_f}",
+                        corpus_mode="list",
+                        output_dir=f"{self.o_dir}")
             x5['config_file'] = 'configs/mix_data_mix.yaml'
-            x5['num_img'] = 256
-            x5['bg_dir'] = f"data/bg_base/{fname}"
+
+            # 加载背景图片
+            if is_fix:
+                x5['bg_dir'] = f"data/bg_base"
+            else:
+                x5['bg_dir'] = f"data/bg_base/{job_name}-{fname}"
+
             x5['img_width'] = tmp_w
             x5['img_height'] = tmp_h                     
             self.configs.append((x5, False))
-        # 把纹理特征存储起来以供后面使用。。注意程序的border。。
-        self.df = pd.DataFrame(np.array(self.textureList), columns=['width', 'height', 'char_distribute', 'bg_store'])     
-        subprocess.getoutput("rm -rf data/base_texture.pkl")
-        self.df.to_pickle("data/base_texture.pkl")
-        self.__getUniSize__()
-        print(f"---uni_h={self.uni_h}-----uni_w={self.uni_w}--height,O_width, uni_width, labelLen--mean, stddev, min, max , median, stdrate, 2stdrate, 3stdrate--the distribution is{self.result} ")
+
+
+    def __init__(self, image_dir_path="", train_file="",
+    per_img_num=(96, 32, 256), conf="configs/mix_data.yaml",
+    corpus_dir="data/list_corpus", o_dir="output/mix_train",
+    key_file="",
+    job_name="collect_texture", is_fix=False, have_img=True
+    ):
+        # vim -d configs/default.yaml configs/mix_data.yaml
+        # mkdir caonima; cd caonima; git clone ; checkout
+        tmp_prefix = "../../"
+
+        self.is_fix = is_fix
+        self.job_name = job_name
+        self.key_file = key_file
+
+        self.widthList = []
+        self.heightList = []
+        self.labelLenList = []
+
+        self.imgdirlist = []
+        self.imgdirlist.append(image_dir_path)
+        self.o_dir = o_dir + "_" + self.job_name
+        self.configs = []
+        self.filelist = []
+        self.textureList = []
+        self.filelist.append(train_file)
+
+        # 如果不是修补。。
+        if not is_fix:
+            self.__base_have_image__(image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix)
+
+            self.df = pd.DataFrame(np.array(self.textureList), columns=['width', 'height', 'char_distribute', 'bg_store'])
+            subprocess.getoutput(f"rm -rf data/{job_name}-base_texture.pkl")
+            self.df.to_pickle(f"data/{job_name}-base_texture.pkl")
+
+            self.__getUniSize__(is_fix)
+            print(f"{job_name}----uni_h={self.uni_h}-----uni_w={self.uni_w}--height,O_width, uni_width, labelLen--mean, stddev, min, max , median, stdrate, 2stdrate, 3stdrate--the distribution is{self.result} ")
+        elif have_img:
+            # 是fix修补。但是有图的情况
+            self.__base_have_image__(image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix)
+            self.__getUniSize__(is_fix)
+
+        else:
+            # 是fix修补，但是没有图，只得加载textureList进行生产。
+            pass
 
     def __counter__(self, i, a, b):
         counter = 0
@@ -175,35 +162,45 @@ class gexinghuaRunner:
         result.append(self.__counter__(i, a - 3*b,  a + 3*b) / size)                       
         return result
 
-    def __getUniSize__(self):
+    def __getUniSize__(self, is_fix, unih=None, uniw=None):
         # 去统计图片的数据情况。主要是高和宽。。返回的是，统一以后的长度。。
         # 这个结果，主要是用于resize图片。。
         # 第一步得到height的分布情况。。
         self.result = []
-        t_height_stat = self.getStat(self.heightList)
-        self.result.append(t_height_stat)
-        o_width_stat = self.getStat(self.widthList)
-        self.result.append(o_width_stat)
-        a_mean = t_height_stat[0]
-        self.uni_h = 158
-        a_stddev = t_height_stat[1]
-        if len(self.heightList) > 1024:
-            self.uni_h = math.floor(a_mean + 2.0 * a_stddev)
-        # 第二步，统计归一化以后的情况。。
-        tmp_w_list = []
-        for e, f in zip(self.widthList, self.heightList):
-            t_scale = f * 1.0 / self.uni_h
-            tmp_w_list.append(math.floor(e * 1.0 / t_scale))
-        t_width_stat = self.getStat(tmp_w_list)
-        self.result.append(t_width_stat)
-        b_mean = t_width_stat[0]
-        self.uni_w = 686
-        b_stddev = t_width_stat[1]
-        if len(self.widthList) > 1024:
-            self.uni_w = math.floor(b_mean + 2.0 * b_stddev)
-        # 统计长度的结果
-        o_label_len = self.getStat(self.labelLenList)
-        self.result.append(o_label_len)
+        if is_fix:
+            if unih is not None:
+                self.uni_h = unih
+            else:
+                self.uni_h = 158
+            if uniw is not None:
+                self.uni_w = uniw
+            else:
+                self.uni_w = 686
+        else:
+            t_height_stat = self.getStat(self.heightList)
+            self.result.append(t_height_stat)
+            o_width_stat = self.getStat(self.widthList)
+            self.result.append(o_width_stat)
+            a_mean = t_height_stat[0]
+            self.uni_h = 158
+            a_stddev = t_height_stat[1]
+            if len(self.heightList) > 4096:
+                self.uni_h = math.floor(a_mean + 2.0 * a_stddev)
+            # 第二步，统计归一化以后的情况。。
+            tmp_w_list = []
+            for e, f in zip(self.widthList, self.heightList):
+                t_scale = f * 1.0 / self.uni_h
+                tmp_w_list.append(math.floor(e * 1.0 / t_scale))
+            t_width_stat = self.getStat(tmp_w_list)
+            self.result.append(t_width_stat)
+            b_mean = t_width_stat[0]
+            self.uni_w = 686
+            b_stddev = t_width_stat[1]
+            if len(self.widthList) > 4096:
+                self.uni_w = math.floor(b_mean + 2.0 * b_stddev)
+            # 统计长度的结果
+            o_label_len = self.getStat(self.labelLenList)
+            self.result.append(o_label_len)
 
     def __dict_to_args__(self, config: dict):
         args = []
@@ -236,10 +233,12 @@ class gexinghuaRunner:
         with open(os.path.join(self.out, "tmp_labels.txt"), "w", encoding='utf-8') as resultf:
             for dir_path, dir_name_list, file_name_list in os.walk(self.o_dir):
                 if dir_path != self.o_dir:
-    #                 print(dir_path)
-                    # 读取文件内容，然后进行复制操作。
+                    # basename现在是路径的最后一个。
                     basename = dir_path.split("/")[-1]
+                    # 如果不是隐藏文件。
                     if not basename.startswith("."):
+                        # basename用点.做分割；得到.jpg前面的部分；然后继续用点.得到类型。customer，noline，或者line。。
+                        # 这里面就要求jobname，不能含有点.号。
                         basename = basename.split(".")[0] + "_" + basename.split(".")[-1] + "_"
                         with open(os.path.join(dir_path, "tmp_labels.txt"), encoding='utf-8') as f:
                             tmp_flist = [str(line).strip() for line in f.readlines()]
@@ -253,30 +252,40 @@ class gexinghuaRunner:
                             resultf.write(f"{basename + fname}{content}\n")
                             shutil.copy2(fname_path, os.path.join(self.out, basename + fname))
         self.filelist.append(os.path.join(self.out, "tmp_labels.txt"))
+        # 在merge的时候，存在字典的问题。。。
         self.__create__()
         self.__getIndex__()
         self.imgdirlist.append(self.out)
 
     def __create__(self):
-        self.diclist = []
-        for file in self.filelist:
-            with open(file, encoding='utf-8') as f:
-                for line in f:
-                    fname = line.split(" ")[0]
-                    tmp = line[len(fname):]
-                    tmp = tmp.strip().replace(" ","")
-                    # 在这里做全角转化为半角的转化
-                    tmp = tmp.replace("（", "(").replace("）", ")").replace("，", ",")
-                    self.diclist.extend(tmp)
-        self.counter = Counter(self.diclist)
-        with open(os.path.join(self.out, "word_distribution.txt"), "w", encoding='utf-8') as wdf:
-            wdf.write(f"--the distribution of the word is {self.counter}")
-        # print(f"--the distribution of the word is {self.counter}")
-        # 把counter转化为字典，存储起来。
-        self.keys = [' '] + sorted(list(self.counter))
-        with open(os.path.join(self.out, "keys.txt"), "w", encoding='utf-8') as kf:
-            for i in self.keys:
-                kf.write(i + "\n")
+        # 如果是修补，那么字典就是确定的，不存在生产新的字典。。
+        if not self.is_fix:
+            self.diclist = []
+            for file in self.filelist:
+                with open(file, encoding='utf-8') as f:
+                    for line in f:
+                        fname = line.split(" ")[0]
+                        tmp = line[len(fname):]
+                        tmp = tmp.strip().replace(" ","")
+                        # 在这里做全角转化为半角的转化
+                        tmp = tmp.replace("（", "(").replace("）", ")").replace("，", ",")
+                        self.diclist.extend(tmp)
+            self.counter = Counter(self.diclist)
+            with open(os.path.join(self.out, "word_distribution.txt"), "w", encoding='utf-8') as wdf:
+                wdf.write(f"--the distribution of the word is {self.counter}")
+            # print(f"--the distribution of the word is {self.counter}")
+            # 把counter转化为字典，存储起来。
+            pkl_wd = open("word_distribution.pkl", "wb")
+            pickle.dump(self.counter, pkl_wd)
+            self.keys = [' '] + sorted(list(self.counter))
+            with open(os.path.join(self.out, "keys.txt"), "w", encoding='utf-8') as kf:
+                for i in self.keys:
+                    kf.write(i + "\n")
+        else:
+            # 如果是修补的话，需要传入，keys所在位置。。
+            with open(self.key_file, encoding="utf-8") as kf:
+                self.keys = [str(e).strip() for e in kf.readlines()]
+
 
     def __getIndex__(self):
         for file in self.filelist:
@@ -374,15 +383,29 @@ def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
                 indf.write("\n")
 
 
-
-# x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_debug",
-# train_file="/Users/GuoLiuFang/Downloads/only_qishui_debug/rm.txt",
-# o_dir="output/only_qishui_final")
-
-x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui_stdard",
-train_file="/workspace/densent_ocr/only_qishui_stdard/label_tmp_all20190311.txt",
-o_dir="output/only_all"
+# 修补程序测试通过。
+# x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_stdard",
+# train_file="/Users/GuoLiuFang/Downloads/label_tmp_all20190311.txt_filter_l.txt",
+# o_dir="output/test_fix",
+# per_img_num=(2, 8, 4),
+# job_name="test_fix_job_name",
+# is_fix=True,
+# key_file="/Users/GuoLiuFang/Downloads/keys.txt"
+# )
+# 测试crate程序当前的现状
+x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_stdard",
+train_file="/Users/GuoLiuFang/Downloads/label_tmp_all20190311.txt_filter_l.txt",
+o_dir="output/test_fix",
+per_img_num=(2, 8, 4),
+job_name="test_create_job_name",
+is_fix=False,
+key_file="/Users/GuoLiuFang/Downloads/keys.txt"
 )
+
+# x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui_stdard",
+# train_file="/workspace/densent_ocr/only_qishui_stdard/label_tmp_all20190311.txt",
+# o_dir="output/only_all"
+# )
 x.run_gen()
 x.merge_result(out_suffix="_allmerge")
 x.resizeImg(result_suffix="_allresize_1")
