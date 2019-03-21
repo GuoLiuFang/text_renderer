@@ -322,7 +322,7 @@ class gexinghuaRunner:
                     for line in f:
                         fname = line.split(" ")[0]
                         tmp = line[len(fname):]
-                        tmp = tmp.strip().replace(" ","")
+                        tmp = tmp.strip().replace(" ","").replace("卍","")
                         # 在这里做全角转化为半角的转化
                         tmp = tmp.replace("（", "(").replace("）", ")").replace("，", ",")
                         self.diclist.extend(tmp)
@@ -351,7 +351,7 @@ class gexinghuaRunner:
                 for line in f:
                     fname = line.split(" ")[0]
                     content = line[len(fname):]
-                    content = content.strip().replace(" ","")
+                    content = content.strip().replace(" ","").replace("卍","")
                     # 在这里做全角半角的转化。。
                     content = content.replace("（", "(").replace("）", ")").replace("，", ",")
                     indf.write(fname)
@@ -409,7 +409,7 @@ def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
             for line in f:
                 fname = line.split(" ")[0]
                 tmp = line[len(fname):]
-                tmp = tmp.strip().replace(" ","")
+                tmp = tmp.strip().replace(" ","").replace("卍","")
                 # 在这里做全角转化为半角的转化
                 tmp = tmp.replace("（", "(").replace("）", ")").replace("，", ",")
                 diclist.extend(tmp)
@@ -429,7 +429,7 @@ def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
             for line in f:
                 fname = line.split(" ")[0]
                 content = line[len(fname):]
-                content = content.strip().replace(" ","")
+                content = content.strip().replace(" ","").replace("卍","")
                 # 在这里做全角半角的转化。。
                 content = content.replace("（", "(").replace("）", ")").replace("，", ",")
                 indf.write(fname)
