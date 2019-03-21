@@ -427,7 +427,10 @@ class Renderer(object):
         """
         Resize background, let bg_width>=width, bg_height >=height, and random crop from resized background
         """
-        assert width > height
+        try:
+            assert width > height
+        except:
+            print("---The bigest-shigu--width={width}----height={height}")
 
         bg = random.choice(self.bgs)
 

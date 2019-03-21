@@ -440,15 +440,15 @@ def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
 
 
 # 修补程序测试通过。
-x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_stdard",
-train_file="/Users/GuoLiuFang/Downloads/label_tmp_all20190311.txt_filter_l.txt",
-o_dir="output/test_fix",
-per_img_num=(1, 2, 3, 4, 5, 6, 7),
-job_name="test_fix_job_name",
-is_fix=True,
-have_img=True,
-key_file="/Users/GuoLiuFang/Downloads/keys.txt"
-)
+# x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_stdard",
+# train_file="/Users/GuoLiuFang/Downloads/label_tmp_all20190311.txt_filter_l.txt",
+# o_dir="output/test_fix",
+# per_img_num=(1, 2, 3, 4, 5, 6, 7),
+# job_name="test_fix_job_name",
+# is_fix=True,
+# have_img=True,
+# key_file="/Users/GuoLiuFang/Downloads/keys.txt"
+# )
 # # 测试crate程序当前的现状
 # x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_stdard",
 # train_file="/Users/GuoLiuFang/Downloads/label_tmp_all20190311.txt_filter_l.txt",
@@ -461,11 +461,23 @@ key_file="/Users/GuoLiuFang/Downloads/keys.txt"
 # key_file="/Users/GuoLiuFang/Downloads/keys.txt"
 # )
 
+x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/stage1_600_total",
+train_file="/workspace/densent_ocr/stage1_600_total/new_labels.txt",
+o_dir="output/classic_honor",
+per_img_num=(100, 32, 32, 32, 32, 72, 100),
+#per_img_num=(1, 2, 3, 4, 5, 6, 7),
+# per_img_num=(100, 32, 32, 32, 32, 72, 100), 每张图400张。
+job_name="become_ledgen",
+is_fix=False,
+key_file=""
+)
+
+
 # x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui_stdard",
 # train_file="/workspace/densent_ocr/only_qishui_stdard/label_tmp_all20190311.txt",
 # o_dir="output/only_all"
 # )
 x.run_gen()
-x.merge_result(out_suffix="_standardallmerge")
-x.resizeImg(result_suffix="_standardallresize")
+x.merge_result(out_suffix="_merge")
+x.resizeImg(result_suffix="_resize")
 # resizeImg(result_suffix="_keys_acsii")
