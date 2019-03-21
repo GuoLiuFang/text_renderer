@@ -430,7 +430,7 @@ class Renderer(object):
         try:
             assert width > height
         except:
-            print("---The bigest-shigu--width={width}----height={height}")
+            print(f"---The bigest-shigu--width={width}----height={height}")
 
         bg = random.choice(self.bgs)
 
