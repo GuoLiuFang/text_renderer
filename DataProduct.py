@@ -32,11 +32,11 @@ class gexinghuaRunner:
                 tmpf.write(f"{content}\n")
 
             tmpdict = dict(strict="", 
-                        tag=f"{job_name}-{fname}.noline",
+                        tag=f"{job_name}-{fname}.base",
                         num_img=f"{per_img_num[0]}",
                         config_file=f"{conf}",
                         corpus_dir=f"{tmp_prefix}{corpus_f}",
-                        fonts_list="data/fonts_list/base_chn.txt",
+                        fonts_list="data/fonts_list/chn.txt",
                         corpus_mode="list",
                         output_dir=f"{tmp_prefix}{self.o_dir}")
 
@@ -49,11 +49,11 @@ class gexinghuaRunner:
             self.configs.append((tmpdict, True))
 
             if not is_fix:
-                if os.path.exists(f"data/bg_base/{job_name}-{fname}"):
-                    shutil.rmtree(f"data/bg_base/{job_name}-{fname}")
-                os.makedirs(f"data/bg_base/{job_name}-{fname}", exist_ok=True)
-                tmpimg.crop([0, 0, tmp_w * 0.05 + 1, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}/1.jpg")
-                tmpimg.crop([tmp_w * 0.95 - 1, 0, tmp_w, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}/3.jpg")
+                if os.path.exists(f"data/bg_base"):
+                    shutil.rmtree(f"data/bg_base")
+                os.makedirs(f"data/bg_base", exist_ok=True)
+                tmpimg.crop([0, 0, tmp_w * 0.05 + 1, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}-1.jpg")
+                tmpimg.crop([tmp_w * 0.95 - 1, 0, tmp_w, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}-3.jpg")
 
                 self.widthList.append(tmp_w)
                 self.heightList.append(tmp_h)
@@ -65,7 +65,7 @@ class gexinghuaRunner:
                         num_img=f"{per_img_num[1]}",
                         config_file=f"{conf}",
                         corpus_dir=f"{tmp_prefix}{corpus_f}",
-                        fonts_list="data/fonts_list/base_chn.txt",
+                        fonts_list="data/fonts_list/chn.txt",
                         corpus_mode="list",
                         output_dir=f"{tmp_prefix}{self.o_dir}")
             x1['config_file'] = 'configs/mix_data_line.yaml'
@@ -73,31 +73,82 @@ class gexinghuaRunner:
             x1['img_height'] = tmp_h
             self.configs.append((x1, True))
 
-            x5 = dict(strict="",
-                        tag=f"{job_name}-{fname}.customer",
+            x2 = dict(strict="",
+                        tag=f"{job_name}-{fname}.blur",
                         num_img=f"{per_img_num[2]}",
+                        config_file=f"{conf}",
+                        corpus_dir=f"{tmp_prefix}{corpus_f}",
+                        fonts_list="data/fonts_list/chn.txt",
+                        corpus_mode="list",
+                        output_dir=f"{tmp_prefix}{self.o_dir}")
+            x2['config_file'] = 'configs/mix_data_blur.yaml'
+            x2['img_width'] = tmp_w
+            x2['img_height'] = tmp_h
+            self.configs.append((x2, True))
+
+            x3 = dict(strict="",
+                        tag=f"{job_name}-{fname}.space",
+                        num_img=f"{per_img_num[3]}",
+                        config_file=f"{conf}",
+                        corpus_dir=f"{tmp_prefix}{corpus_f}",
+                        fonts_list="data/fonts_list/chn.txt",
+                        corpus_mode="list",
+                        output_dir=f"{tmp_prefix}{self.o_dir}")
+            x3['config_file'] = 'configs/mix_data_space.yaml'
+            x3['img_width'] = tmp_w
+            x3['img_height'] = tmp_h
+            self.configs.append((x3, True))
+
+            x4 = dict(strict="",
+                        tag=f"{job_name}-{fname}.bg",
+                        num_img=f"{per_img_num[4]}",
+                        config_file=f"{conf}",
+                        corpus_dir=f"{tmp_prefix}{corpus_f}",
+                        fonts_list="data/fonts_list/chn.txt",
+                        corpus_mode="list",
+                        output_dir=f"{tmp_prefix}{self.o_dir}")
+            x4['config_file'] = 'configs/mix_data_bg.yaml'
+            x4['bg_dir'] = f"{tmp_prefix}data/bg_base"
+            x4['img_width'] = tmp_w
+            x4['img_height'] = tmp_h
+            self.configs.append((x4, True))
+
+
+
+            x5 = dict(strict="",
+                        tag=f"{job_name}-{fname}.basemix",
+                        num_img=f"{per_img_num[5]}",
+                        config_file=f"{conf}",
+                        corpus_dir=f"{tmp_prefix}{corpus_f}",
+                        fonts_list="data/fonts_list/chn.txt",
+                        corpus_mode="list",
+                        output_dir=f"{tmp_prefix}{self.o_dir}")
+            x5['config_file'] = 'configs/mix_data_mix.yaml'
+            x5['bg_dir'] = f"{tmp_prefix}data/bg_base"
+            x5['img_width'] = tmp_w
+            x5['img_height'] = tmp_h
+            self.configs.append((x5, True))
+
+            x6 = dict(strict="",
+                        tag=f"{job_name}-{fname}.customer",
+                        num_img=f"{per_img_num[6]}",
                         config_file=f"{conf}",
                         corpus_dir=f"{corpus_f}",
                         corpus_mode="list",
                         output_dir=f"{self.o_dir}")
-            x5['config_file'] = 'configs/mix_data_mix.yaml'
-
-            # 加载背景图片
-            if is_fix:
-                x5['bg_dir'] = f"data/bg_base"
-            else:
-                x5['bg_dir'] = f"data/bg_base/{job_name}-{fname}"
-
-            x5['img_width'] = tmp_w
-            x5['img_height'] = tmp_h                     
-            self.configs.append((x5, False))
+            x6['config_file'] = 'configs/mix_data_customer.yaml'
+            x6['bg_dir'] = f"data/bg_base"
+            x6['img_width'] = tmp_w
+            x6['img_height'] = tmp_h                     
+            self.configs.append((x6, False))
 
 
     def __init__(self, image_dir_path="", train_file="",
-    per_img_num=(96, 32, 256), conf="configs/mix_data.yaml",
+    per_img_num=(96, 32, 256), conf="configs/mix_data_base.yaml",
     corpus_dir="data/list_corpus", o_dir="output/mix_train",
     key_file="",
-    job_name="collect_texture", is_fix=False, have_img=True
+    job_name="collect_texture",
+    is_fix=False, have_img=True, list_corpus="", texture_pkl="data/base_texture.pkl"
     ):
         # vim -d configs/default.yaml configs/mix_data.yaml
         # mkdir caonima; cd caonima; git clone ; checkout
@@ -135,7 +186,12 @@ class gexinghuaRunner:
             self.__getUniSize__(is_fix)
 
         else:
-            # 是fix修补，但是没有图，只得加载textureList进行生产。
+            # 是fix修补，但是没有图，只得加载textureList进行生产。导入语料被定义为是修补，就是is_fix=True。
+            # 第一步加载纹理框
+            self.dfTexture = pd.read_pickle(texture_pkl)
+            # 找到逻辑了，通过长度，找所有长度为这个长度的语料。然后，开始搞。所以，这里就不是写一行了, 语料里面是很多行。
+            # 所有没有匹配到的语料。最终拼接成一行。就行顺序截取。一一对应。。while（true），直到消耗殆尽。。
+            
             pass
 
     def __counter__(self, i, a, b):
@@ -384,23 +440,26 @@ def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
 
 
 # 修补程序测试通过。
-# x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_stdard",
-# train_file="/Users/GuoLiuFang/Downloads/label_tmp_all20190311.txt_filter_l.txt",
-# o_dir="output/test_fix",
-# per_img_num=(2, 8, 4),
-# job_name="test_fix_job_name",
-# is_fix=True,
-# key_file="/Users/GuoLiuFang/Downloads/keys.txt"
-# )
-# 测试crate程序当前的现状
 x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_stdard",
 train_file="/Users/GuoLiuFang/Downloads/label_tmp_all20190311.txt_filter_l.txt",
 o_dir="output/test_fix",
-per_img_num=(2, 8, 4),
-job_name="test_create_job_name",
-is_fix=False,
+per_img_num=(1, 2, 3, 4, 5, 6, 7),
+job_name="test_fix_job_name",
+is_fix=True,
+have_img=True,
 key_file="/Users/GuoLiuFang/Downloads/keys.txt"
 )
+# # 测试crate程序当前的现状
+# x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_stdard",
+# train_file="/Users/GuoLiuFang/Downloads/label_tmp_all20190311.txt_filter_l.txt",
+# o_dir="output/test_fix",
+# # per_img_num=(100, 32, 32, 32, 32, 72, 100),
+# per_img_num=(1, 2, 3, 4, 5, 6, 7),
+# # per_img_num=(100, 32, 32, 32, 32, 72, 100), 每张图400张。
+# job_name="test_create_job_name",
+# is_fix=False,
+# key_file="/Users/GuoLiuFang/Downloads/keys.txt"
+# )
 
 # x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui_stdard",
 # train_file="/workspace/densent_ocr/only_qishui_stdard/label_tmp_all20190311.txt",
