@@ -1,7 +1,7 @@
 # Small font_size will make text looks like blured/prydown
 font_size:
-  min: 16
-  max: 32
+  min: 14
+  max: 23
 
 # By default, text is drawed by Pillow with (https://stackoverflow.com/questions/43828955/measuring-width-of-text-python-pil)
 # If `random_space` is enabled, some text will be drawed char by char with a random space
@@ -62,9 +62,9 @@ seamless_clone:
   fraction: 0.5
 
 perspective_transform:
-  max_x: 0
-  max_y: 0
-  max_z: 0
+  max_x: 3
+  max_y: 3
+  max_z: 3
 
 blur:
   enable: true

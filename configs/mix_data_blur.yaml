@@ -68,7 +68,7 @@ perspective_transform:
 
 blur:
   enable: true
-  fraction: 0.03
+  fraction: 1
 
 # If an image is applied blur, it will not be applied prydown
 prydown:
@@ -97,20 +97,20 @@ noise:
     fraction: 0.25
 
 line:
-  enable: true
-  fraction: 1
+  enable: false
+  fraction: 0.05
 
   under_line:
-    enable: true
-    fraction: 0.3
+    enable: false
+    fraction: 0.2
 
   table_line:
-    enable: true
-    fraction: 0.5
+    enable: false
+    fraction: 0.3
 
   middle_line:
-    enable: true
-    fraction: 0.2
+    enable: false
+    fraction: 0.5
 
 # These operates are applied on the final output image,
 # so actually it can also be applied in training process as an data augmentation method.

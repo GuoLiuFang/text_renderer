@@ -1,15 +1,15 @@
 # Small font_size will make text looks like blured/prydown
 font_size:
-  min: 14
-  max: 23
+  min: 10
+  max: 32
 
 # By default, text is drawed by Pillow with (https://stackoverflow.com/questions/43828955/measuring-width-of-text-python-pil)
 # If `random_space` is enabled, some text will be drawed char by char with a random space
 random_space:
-  enable: false
-  fraction: 0.3
+  enable: true
+  fraction: 0.382
   min: -0.1 # -0.1 will make chars very close or even overlapped
-  max: 0.1
+  max: 0.618
 
 # Do remap with sin()
 # Currently this process is very slow!
@@ -36,7 +36,7 @@ crop:
 # Use image in bg_dir as background for text
 img_bg:
   enable: true
-  fraction: 0.5
+  fraction: 0.618
 
 # Not work when random_space applied
 text_border:
@@ -62,13 +62,13 @@ seamless_clone:
   fraction: 0.5
 
 perspective_transform:
-  max_x: 3
-  max_y: 3
+  max_x: 9
+  max_y: 9
   max_z: 3
 
 blur:
   enable: true
-  fraction: 0.03
+  fraction: 0.236
 
 # If an image is applied blur, it will not be applied prydown
 prydown:
@@ -78,7 +78,7 @@ prydown:
 
 noise:
   enable: true
-  fraction: 0.3
+  fraction: 0.382
 
   gauss:
     enable: true
@@ -98,19 +98,19 @@ noise:
 
 line:
   enable: true
-  fraction: 1
+  fraction: 0.236
 
   under_line:
     enable: true
-    fraction: 0.3
+    fraction: 0.15
 
   table_line:
     enable: true
-    fraction: 0.5
+    fraction: 0.8
 
   middle_line:
     enable: true
-    fraction: 0.2
+    fraction: 0.05
 
 # These operates are applied on the final output image,
 # so actually it can also be applied in training process as an data augmentation method.
