@@ -49,9 +49,6 @@ class gexinghuaRunner:
             self.configs.append((tmpdict, True))
 
             if not is_fix:
-                if os.path.exists(f"data/bg_base"):
-                    shutil.rmtree(f"data/bg_base")
-                os.makedirs(f"data/bg_base", exist_ok=True)
                 tmpimg.crop([0, 0, tmp_w * 0.05 + 1, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}-1.jpg")
                 tmpimg.crop([tmp_w * 0.95 - 1, 0, tmp_w, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}-3.jpg")
 
@@ -170,6 +167,7 @@ class gexinghuaRunner:
         self.textureList = []
         self.filelist.append(train_file)
 
+        os.makedirs(f"data/bg_base", exist_ok=True)
         # 如果不是修补。。
         if not is_fix:
             self.__base_have_image__(image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix)
