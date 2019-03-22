@@ -462,10 +462,10 @@ def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
 x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/stage1_600_total",
 train_file="/workspace/densent_ocr/stage1_600_total/new_labels.txt",
 o_dir="output/classic_honor",
-per_img_num=(100, 32, 32, 32, 32, 72, 100),
+per_img_num=(128, 16, 16, 16, 16, 64, 64),
 #per_img_num=(1, 2, 3, 4, 5, 6, 7),
 # per_img_num=(100, 32, 32, 32, 32, 72, 100), 每张图400张。
-job_name="become_ledgen",
+job_name="become_legend",
 is_fix=False,
 key_file=""
 )

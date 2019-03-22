@@ -408,6 +408,8 @@ class Renderer(object):
             bg = self.gen_bg_from_image(int(width), int(height))
         else:
             bg = self.gen_rand_bg(int(width), int(height))
+        if bg is None:
+            bg = self.gen_rand_bg(int(width), int(height))
         return bg
 
     def gen_rand_bg(self, width, height):
