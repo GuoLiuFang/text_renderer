@@ -6,7 +6,7 @@ font_size:
 # By default, text is drawed by Pillow with (https://stackoverflow.com/questions/43828955/measuring-width-of-text-python-pil)
 # If `random_space` is enabled, some text will be drawed char by char with a random space
 random_space:
-  enable: true
+  enable: false
   fraction: 0.382
   min: -0.1 # -0.1 will make chars very close or even overlapped
   max: 2
