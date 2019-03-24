@@ -62,9 +62,9 @@ seamless_clone:
   fraction: 0.5
 
 perspective_transform:
-  max_x: 3
-  max_y: 3
-  max_z: 3
+  max_x: 0
+  max_y: 0
+  max_z: 0
 
 blur:
   enable: true
@@ -106,11 +106,11 @@ line:
 
   table_line:
     enable: true
-    fraction: 0.5
+    fraction: 0.6
 
   middle_line:
     enable: true
-    fraction: 0.2
+    fraction: 0.1
 
 # These operates are applied on the final output image,
 # so actually it can also be applied in training process as an data augmentation method.

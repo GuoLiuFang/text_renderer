@@ -62,13 +62,13 @@ seamless_clone:
   fraction: 0.5
 
 perspective_transform:
-  max_x: 9
-  max_y: 9
-  max_z: 3
+  max_x: 1
+  max_y: 1
+  max_z: 1
 
 blur:
   enable: true
-  fraction: 0.236
+  fraction: 0.382
 
 # If an image is applied blur, it will not be applied prydown
 prydown:
@@ -102,11 +102,11 @@ line:
 
   under_line:
     enable: true
-    fraction: 0.15
+    fraction: 0.25
 
   table_line:
     enable: true
-    fraction: 0.8
+    fraction: 0.7
 
   middle_line:
     enable: true
