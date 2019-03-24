@@ -9,7 +9,7 @@ random_space:
   enable: true
   fraction: 0.382
   min: -0.1 # -0.1 will make chars very close or even overlapped
-  max: 0.618
+  max: 0.1
 
 # Do remap with sin()
 # Currently this process is very slow!
