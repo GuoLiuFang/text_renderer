@@ -18,126 +18,136 @@ class gexinghuaRunner:
 
         with open(os.path.join(image_dir_path, train_file), encoding='utf-8') as f:
             test_image_list = [str(line).strip() for line in f.readlines()]
+        with open(f"{job_name}-bad_label_case.txt", "w", encoding="utf-8") as sf:
+            for line in test_image_list:
+                fname = line.split(" ")[0]
+                content = line[len(fname):]
+                content = content.strip()
 
-        for line in test_image_list:
-            fname = line.split(" ")[0]
-            content = line[len(fname):]
-            content = content.strip()
+                tmpimg = Image.open(os.path.join(image_dir_path, fname))
+                tmp_w = tmpimg.size[0]
+                tmp_h = tmpimg.size[1]
 
-            corpus_f = os.path.join(corpus_dir, fname)
-            if os.path.exists(corpus_f):
-                shutil.rmtree(corpus_f)
-            os.makedirs(corpus_f)
-            with open(f"{corpus_f}/{fname}.txt", "w", encoding='utf-8') as tmpf:
-                tmpf.write(f"{content}\n")
+                # 如果字符长度的2倍，大于，宽度除以高度的话，才可以进行数据生产：497，25。字符长度为10的时候，2*10>(497/25)
+                if (len(content) * 2) > (tmp_w * 1.0 / tmp_h):
+                    corpus_f = os.path.join(corpus_dir, fname)
+                    if os.path.exists(corpus_f):
+                        shutil.rmtree(corpus_f)
+                    os.makedirs(corpus_f)
+                    with open(f"{corpus_f}/{fname}.txt", "w", encoding='utf-8') as tmpf:
+                        tmpf.write(f"{content}\n")
 
-            tmpdict = dict(strict="", 
-                        tag=f"{job_name}-{fname}.base",
-                        num_img=f"{per_img_num[0]}",
-                        config_file=f"{conf}",
-                        corpus_dir=f"{tmp_prefix}{corpus_f}",
-                        fonts_list="data/fonts_list/chn.txt",
-                        corpus_mode="list",
-                        output_dir=f"{tmp_prefix}{self.o_dir}")
+                    tmpdict = dict(strict="", 
+                                tag=f"{job_name}-{fname}.base",
+                                num_img=f"{per_img_num[0]}",
+                                config_file=f"{conf}",
+                                corpus_dir=f"{tmp_prefix}{corpus_f}",
+                                fonts_list="data/fonts_list/chn.txt",
+                                corpus_mode="list",
+                                output_dir=f"{tmp_prefix}{self.o_dir}")
+                    tmpdict['img_width'] = tmp_w
+                    tmpdict['img_height'] = tmp_h
+                    self.configs.append((tmpdict, True))
 
-            tmpimg = Image.open(os.path.join(image_dir_path, fname))
-            tmp_w = tmpimg.size[0]
-            tmp_h = tmpimg.size[1]
+                    if not is_fix:
+                        tmpimg.crop([0, 0, tmp_w * 0.05 + 1, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}-1.jpg")
+                        tmpimg.crop([tmp_w * 0.95 - 1, 0, tmp_w, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}-3.jpg")
 
-            tmpdict['img_width'] = tmp_w
-            tmpdict['img_height'] = tmp_h
-            self.configs.append((tmpdict, True))
+                        self.widthList.append(tmp_w)
+                        self.heightList.append(tmp_h)
+                        self.labelLenList.append(len(content))
+                        self.textureList.append([tmp_w, tmp_h, content, f"data/bg_base/{job_name}-{fname}"])
 
-            if not is_fix:
-                tmpimg.crop([0, 0, tmp_w * 0.05 + 1, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}-1.jpg")
-                tmpimg.crop([tmp_w * 0.95 - 1, 0, tmp_w, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}-3.jpg")
+                    x1 = dict(strict="",
+                                tag=f"{job_name}-{fname}.line",
+                                num_img=f"{per_img_num[1]}",
+                                config_file=f"{conf}",
+                                corpus_dir=f"{tmp_prefix}{corpus_f}",
+                                fonts_list="data/fonts_list/chn.txt",
+                                corpus_mode="list",
+                                output_dir=f"{tmp_prefix}{self.o_dir}")
+                    x1['config_file'] = 'configs/mix_data_line.yaml'
+                    x1['img_width'] = tmp_w
+                    x1['img_height'] = tmp_h
+                    self.configs.append((x1, True))
 
-                self.widthList.append(tmp_w)
-                self.heightList.append(tmp_h)
-                self.labelLenList.append(len(content))
-                self.textureList.append([tmp_w, tmp_h, content, f"data/bg_base/{job_name}-{fname}"])
+                    x2 = dict(strict="",
+                                tag=f"{job_name}-{fname}.blur",
+                                num_img=f"{per_img_num[2]}",
+                                config_file=f"{conf}",
+                                corpus_dir=f"{tmp_prefix}{corpus_f}",
+                                fonts_list="data/fonts_list/chn.txt",
+                                corpus_mode="list",
+                                output_dir=f"{tmp_prefix}{self.o_dir}")
+                    x2['config_file'] = 'configs/mix_data_blur.yaml'
+                    x2['img_width'] = tmp_w
+                    x2['img_height'] = tmp_h
+                    self.configs.append((x2, True))
 
-            x1 = dict(strict="",
-                        tag=f"{job_name}-{fname}.line",
-                        num_img=f"{per_img_num[1]}",
-                        config_file=f"{conf}",
-                        corpus_dir=f"{tmp_prefix}{corpus_f}",
-                        fonts_list="data/fonts_list/chn.txt",
-                        corpus_mode="list",
-                        output_dir=f"{tmp_prefix}{self.o_dir}")
-            x1['config_file'] = 'configs/mix_data_line.yaml'
-            x1['img_width'] = tmp_w
-            x1['img_height'] = tmp_h
-            self.configs.append((x1, True))
+                    if "   " in content:
+                        sf.write(f"configs/mix_data_space.yaml-content three space==={line}\n")
+                    else:
+                        x3 = dict(strict="",
+                                    tag=f"{job_name}-{fname}.space",
+                                    num_img=f"{per_img_num[3]}",
+                                    config_file=f"{conf}",
+                                    corpus_dir=f"{tmp_prefix}{corpus_f}",
+                                    fonts_list="data/fonts_list/chn.txt",
+                                    corpus_mode="list",
+                                    output_dir=f"{tmp_prefix}{self.o_dir}")
+                        x3['config_file'] = 'configs/mix_data_space.yaml'
+                        x3['img_width'] = tmp_w
+                        x3['img_height'] = tmp_h
+                        self.configs.append((x3, True))
 
-            x2 = dict(strict="",
-                        tag=f"{job_name}-{fname}.blur",
-                        num_img=f"{per_img_num[2]}",
-                        config_file=f"{conf}",
-                        corpus_dir=f"{tmp_prefix}{corpus_f}",
-                        fonts_list="data/fonts_list/chn.txt",
-                        corpus_mode="list",
-                        output_dir=f"{tmp_prefix}{self.o_dir}")
-            x2['config_file'] = 'configs/mix_data_blur.yaml'
-            x2['img_width'] = tmp_w
-            x2['img_height'] = tmp_h
-            self.configs.append((x2, True))
+                    x4 = dict(strict="",
+                                tag=f"{job_name}-{fname}.bg",
+                                num_img=f"{per_img_num[4]}",
+                                config_file=f"{conf}",
+                                corpus_dir=f"{tmp_prefix}{corpus_f}",
+                                fonts_list="data/fonts_list/chn.txt",
+                                corpus_mode="list",
+                                output_dir=f"{tmp_prefix}{self.o_dir}")
+                    x4['config_file'] = 'configs/mix_data_bg.yaml'
+                    x4['bg_dir'] = f"{tmp_prefix}data/bg_base"
+                    x4['img_width'] = tmp_w
+                    x4['img_height'] = tmp_h
+                    self.configs.append((x4, True))
 
-            x3 = dict(strict="",
-                        tag=f"{job_name}-{fname}.space",
-                        num_img=f"{per_img_num[3]}",
-                        config_file=f"{conf}",
-                        corpus_dir=f"{tmp_prefix}{corpus_f}",
-                        fonts_list="data/fonts_list/chn.txt",
-                        corpus_mode="list",
-                        output_dir=f"{tmp_prefix}{self.o_dir}")
-            x3['config_file'] = 'configs/mix_data_space.yaml'
-            x3['img_width'] = tmp_w
-            x3['img_height'] = tmp_h
-            self.configs.append((x3, True))
+                    if "   " in content:
+                        sf.write(f"configs/mix_data_mix.yaml-content three space==={line}\n")
+                    else:
+                        x5 = dict(strict="",
+                                    tag=f"{job_name}-{fname}.basemix",
+                                    num_img=f"{per_img_num[5]}",
+                                    config_file=f"{conf}",
+                                    corpus_dir=f"{tmp_prefix}{corpus_f}",
+                                    fonts_list="data/fonts_list/chn.txt",
+                                    corpus_mode="list",
+                                    output_dir=f"{tmp_prefix}{self.o_dir}")
+                        x5['config_file'] = 'configs/mix_data_mix.yaml'
+                        x5['bg_dir'] = f"{tmp_prefix}data/bg_base"
+                        x5['img_width'] = tmp_w
+                        x5['img_height'] = tmp_h
+                        self.configs.append((x5, True))
 
-            x4 = dict(strict="",
-                        tag=f"{job_name}-{fname}.bg",
-                        num_img=f"{per_img_num[4]}",
-                        config_file=f"{conf}",
-                        corpus_dir=f"{tmp_prefix}{corpus_f}",
-                        fonts_list="data/fonts_list/chn.txt",
-                        corpus_mode="list",
-                        output_dir=f"{tmp_prefix}{self.o_dir}")
-            x4['config_file'] = 'configs/mix_data_bg.yaml'
-            x4['bg_dir'] = f"{tmp_prefix}data/bg_base"
-            x4['img_width'] = tmp_w
-            x4['img_height'] = tmp_h
-            self.configs.append((x4, True))
-
-
-
-            x5 = dict(strict="",
-                        tag=f"{job_name}-{fname}.basemix",
-                        num_img=f"{per_img_num[5]}",
-                        config_file=f"{conf}",
-                        corpus_dir=f"{tmp_prefix}{corpus_f}",
-                        fonts_list="data/fonts_list/chn.txt",
-                        corpus_mode="list",
-                        output_dir=f"{tmp_prefix}{self.o_dir}")
-            x5['config_file'] = 'configs/mix_data_mix.yaml'
-            x5['bg_dir'] = f"{tmp_prefix}data/bg_base"
-            x5['img_width'] = tmp_w
-            x5['img_height'] = tmp_h
-            self.configs.append((x5, True))
-
-            x6 = dict(strict="",
-                        tag=f"{job_name}-{fname}.customer",
-                        num_img=f"{per_img_num[6]}",
-                        config_file=f"{conf}",
-                        corpus_dir=f"{corpus_f}",
-                        corpus_mode="list",
-                        output_dir=f"{self.o_dir}")
-            x6['config_file'] = 'configs/mix_data_customer.yaml'
-            x6['bg_dir'] = f"data/bg_base"
-            x6['img_width'] = tmp_w
-            x6['img_height'] = tmp_h                     
-            self.configs.append((x6, False))
+                    if "   " in content:
+                        sf.write(f"configs/mix_data_customer.yaml-content three space==={line}\n")
+                    else:
+                        x6 = dict(strict="",
+                                    tag=f"{job_name}-{fname}.customer",
+                                    num_img=f"{per_img_num[6]}",
+                                    config_file=f"{conf}",
+                                    corpus_dir=f"{corpus_f}",
+                                    corpus_mode="list",
+                                    output_dir=f"{self.o_dir}")
+                        x6['config_file'] = 'configs/mix_data_customer.yaml'
+                        x6['bg_dir'] = f"data/bg_base"
+                        x6['img_width'] = tmp_w
+                        x6['img_height'] = tmp_h
+                        self.configs.append((x6, False))
+                else:
+                    sf.write(f"{line}\n")
 
 
     def __init__(self, image_dir_path="", train_file="",

@@ -81,7 +81,7 @@ class Liner(object):
         t_box_w = text_box_pnts[2][0] - text_box_pnts[0][0]
 
         s_space_h = t_img_h - t_box_h
-        s_space_w = t_box_w - t_box_w 
+        s_space_w = t_box_w - t_box_w
 
         left_top_x = text_box_pnts[0][0]
         left_top_y = text_box_pnts[0][1]
@@ -119,7 +119,7 @@ class Liner(object):
 
         def is_right():
             return option in [2, 5, 6]
-        
+
         def is_vertical():
             return option in [9]
 
@@ -141,8 +141,8 @@ class Liner(object):
             right_bottom_x += min(abs(t_right_x_offset - random.randint(1, 5)), abs(right_x_offset))
 
             text_box_pnts[1][0] += t_right_x_offset
-            text_box_pnts[2][0] += t_right_x_offset      
-        
+            text_box_pnts[2][0] += t_right_x_offset
+
         if is_vertical():
             left_top_x -= min(abs(t_left_x_offset - random.randint(1, 5)), abs(left_x_offset))
             left_bottom_x -= min(abs(t_left_x_offset - random.randint(1, 5)), abs(left_x_offset))
@@ -154,7 +154,7 @@ class Liner(object):
             right_bottom_x += min(abs(t_right_x_offset - random.randint(1, 5)), abs(right_x_offset))
 
             text_box_pnts[1][0] += t_right_x_offset
-            text_box_pnts[2][0] += t_right_x_offset                            
+            text_box_pnts[2][0] += t_right_x_offset
 
         if is_top():
             left_top_y += top_y_offset
@@ -168,7 +168,7 @@ class Liner(object):
             left_bottom_y += bottom_y_offset
 
             text_box_pnts[2][1] += t_bottom_y_offset
-            text_box_pnts[3][1] += t_bottom_y_offset            
+            text_box_pnts[3][1] += t_bottom_y_offset
 
         if is_left():
             left_top_x += left_x_offset
@@ -222,7 +222,7 @@ class Liner(object):
                            (left_bottom_x, word_img.shape[0]),
                            color=line_color,
                            thickness=thickness,
-                           lineType=cv2.LINE_AA)     
+                           lineType=cv2.LINE_AA)
 
             dst = cv2.line(dst,
                            (right_top_x, 0),
