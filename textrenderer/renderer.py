@@ -408,6 +408,8 @@ class Renderer(object):
             bg = self.gen_bg_from_image(int(width), int(height))
         else:
             bg = self.gen_rand_bg(int(width), int(height))
+        while bg is None:
+            bg = self.gen_rand_bg(int(width), int(height))
         return bg
 
     def gen_rand_bg(self, width, height):
@@ -427,7 +429,10 @@ class Renderer(object):
         """
         Resize background, let bg_width>=width, bg_height >=height, and random crop from resized background
         """
-        assert width > height
+        try:
+            assert width > height
+        except:
+            print(f"---width <= height---width={width}---height={height}")
 
         bg = random.choice(self.bgs)
 
@@ -435,11 +440,11 @@ class Renderer(object):
 
         out = cv2.resize(bg, None, fx=scale, fy=scale)
 
-        x_offset, y_offset = self.random_xy_offset(height, width, out.shape[0], out.shape[1])
+        # x_offset, y_offset = self.random_xy_offset(height, width, out.shape[0], out.shape[1])
 
-        out = out[y_offset:y_offset + height, x_offset:x_offset + width]
+        # out = out[y_offset:y_offset + height, x_offset:x_offset + width]
 
-        out = self.apply_gauss_blur(out, ks=[7, 11, 13, 15, 17])
+        # out = self.apply_gauss_blur(out, ks=[7, 11, 13, 15, 17])
 
         # bg_mean = int(np.mean(out))
 
