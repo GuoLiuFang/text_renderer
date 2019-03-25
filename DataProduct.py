@@ -9,6 +9,7 @@ import numpy as np
 import math
 import statistics
 import pickle
+import time
 class gexinghuaRunner:
     """
         job_name中不能含有点.号。
@@ -288,6 +289,8 @@ class gexinghuaRunner:
                 subprocess.run(['sh', "exe_original.sh"] + [" ".join([str(e) for e in args])])
             else:
                 subprocess.run(['python', self.main_func] + args)
+            # 务必休息100s否则，机器一定会崩掉。
+            time.sleep(100)
             
     def merge_result(self, out_suffix="_result"):
         self.out = self.o_dir + out_suffix
