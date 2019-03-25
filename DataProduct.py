@@ -10,6 +10,7 @@ import math
 import statistics
 import pickle
 import time
+from multiprocessing import Pool
 class gexinghuaRunner:
     """
         job_name中不能含有点.号。
@@ -275,22 +276,29 @@ class gexinghuaRunner:
             args.append('--%s' % k)
             args.append('%s' % v)
         return args
+    def __p_process__(self, cmd):
+        subprocess.run(cmd)
 
-    def run_gen(self):
+    def run_gen(self, pool_len=1):
         self.main_func = './main.py'
         # 先做一些清理工作。
         if os.path.exists(self.o_dir):
             shutil.rmtree(self.o_dir)
         # 对于base的东西使用shell进行调用。。
+        pool = Pool(pool_len)
         for config, flag in self.configs:
-            args = self.__dict_to_args__(config)
-            print("Run with args: %s" % args)
+            xargs = self.__dict_to_args__(config)
+            print("Run with args: %s" % xargs)
             if flag:
-                subprocess.run(['sh', "exe_original.sh"] + [" ".join([str(e) for e in args])])
+                # subprocess.run(['sh', "exe_original.sh"] + [" ".join([str(e) for e in xargs])])
+                pool.apply_async(self.__p_process__, args=(['sh', "exe_original.sh"] + [" ".join([str(e) for e in xargs])]))
             else:
-                subprocess.run(['python', self.main_func] + args)
+                # subprocess.run(['python', self.main_func] + xargs)
+                pool.apply_async(self.__p_process__, args=(['python', self.main_func] + xargs))
             # 务必休息100s否则，机器一定会崩掉。
-            time.sleep(100)
+            # time.sleep(100)
+        pool.close()
+        pool.join()
             
     def merge_result(self, out_suffix="_result"):
         self.out = self.o_dir + out_suffix
@@ -472,13 +480,13 @@ def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
 # key_file="/Users/GuoLiuFang/Downloads/keys.txt"
 # )
 
-x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/stage1_600_total",
-train_file="/workspace/densent_ocr/stage1_600_total/new_labels.txt",
-o_dir="output/classic_honor",
+x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/become_legend",
+train_file="/workspace/densent_ocr/become_legend/become_legend_finnaly.txt",
+o_dir="output/dare_to_life",
 per_img_num=(128, 16, 16, 16, 16, 64, 64),
 #per_img_num=(1, 2, 3, 4, 5, 6, 7),
 # per_img_num=(100, 32, 32, 32, 32, 72, 100), 每张图400张。
-job_name="become_legend",
+job_name="you_are_the_legend",
 is_fix=False,
 key_file=""
 )
@@ -488,7 +496,7 @@ key_file=""
 # train_file="/workspace/densent_ocr/only_qishui_stdard/label_tmp_all20190311.txt",
 # o_dir="output/only_all"
 # )
-x.run_gen()
+x.run_gen(pool_len=14)
 x.merge_result(out_suffix="_merge")
 x.resizeImg(result_suffix="_resize")
 # resizeImg(result_suffix="_keys_acsii")
