@@ -15,6 +15,126 @@ class gexinghuaRunner:
     """
         job_name中不能含有点.号。
     """
+    def __make_configs__(self, content, tmp_w, tmp_h, fname, image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix):
+        if (len(content) * 2) > (tmp_w * 1.0 / tmp_h):
+            corpus_f = os.path.join(corpus_dir, fname)
+            if os.path.exists(corpus_f):
+                shutil.rmtree(corpus_f)
+            os.makedirs(corpus_f)
+            with open(f"{corpus_f}/{fname}.txt", "w", encoding='utf-8') as tmpf:
+                tmpf.write(f"{content}\n")
+
+            tmpdict = dict(strict="", 
+                        tag=f"{job_name}-{fname}.base",
+                        num_img=f"{per_img_num[0]}",
+                        config_file=f"{conf}",
+                        corpus_dir=f"{tmp_prefix}{corpus_f}",
+                        fonts_list="data/fonts_list/chn.txt",
+                        corpus_mode="list",
+                        output_dir=f"{tmp_prefix}{self.o_dir}")
+            tmpdict['img_width'] = tmp_w
+            tmpdict['img_height'] = tmp_h
+            self.configs.append((tmpdict, True))
+
+            if not is_fix:
+                tmpimg.crop([0, 0, tmp_w * 0.05 + 1, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}-1.jpg")
+                tmpimg.crop([tmp_w * 0.95 - 1, 0, tmp_w, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}-3.jpg")
+
+                self.widthList.append(tmp_w)
+                self.heightList.append(tmp_h)
+                self.labelLenList.append(len(content))
+                self.textureList.append([tmp_w, tmp_h, content, f"data/bg_base/{job_name}-{fname}"])
+
+            x1 = dict(strict="",
+                        tag=f"{job_name}-{fname}.line",
+                        num_img=f"{per_img_num[1]}",
+                        config_file=f"{conf}",
+                        corpus_dir=f"{tmp_prefix}{corpus_f}",
+                        fonts_list="data/fonts_list/chn.txt",
+                        corpus_mode="list",
+                        output_dir=f"{tmp_prefix}{self.o_dir}")
+            x1['config_file'] = 'configs/mix_data_line.yaml'
+            x1['img_width'] = tmp_w
+            x1['img_height'] = tmp_h
+            self.configs.append((x1, True))
+
+            x2 = dict(strict="",
+                        tag=f"{job_name}-{fname}.blur",
+                        num_img=f"{per_img_num[2]}",
+                        config_file=f"{conf}",
+                        corpus_dir=f"{tmp_prefix}{corpus_f}",
+                        fonts_list="data/fonts_list/chn.txt",
+                        corpus_mode="list",
+                        output_dir=f"{tmp_prefix}{self.o_dir}")
+            x2['config_file'] = 'configs/mix_data_blur.yaml'
+            x2['img_width'] = tmp_w
+            x2['img_height'] = tmp_h
+            self.configs.append((x2, True))
+
+            if "   " in content:
+                sf.write(f"configs/mix_data_space.yaml-content three space==={line}\n")
+            else:
+                x3 = dict(strict="",
+                            tag=f"{job_name}-{fname}.space",
+                            num_img=f"{per_img_num[3]}",
+                            config_file=f"{conf}",
+                            corpus_dir=f"{tmp_prefix}{corpus_f}",
+                            fonts_list="data/fonts_list/chn.txt",
+                            corpus_mode="list",
+                            output_dir=f"{tmp_prefix}{self.o_dir}")
+                x3['config_file'] = 'configs/mix_data_space.yaml'
+                x3['img_width'] = tmp_w
+                x3['img_height'] = tmp_h
+                self.configs.append((x3, True))
+
+            x4 = dict(strict="",
+                        tag=f"{job_name}-{fname}.bg",
+                        num_img=f"{per_img_num[4]}",
+                        config_file=f"{conf}",
+                        corpus_dir=f"{tmp_prefix}{corpus_f}",
+                        fonts_list="data/fonts_list/chn.txt",
+                        corpus_mode="list",
+                        output_dir=f"{tmp_prefix}{self.o_dir}")
+            x4['config_file'] = 'configs/mix_data_bg.yaml'
+            x4['bg_dir'] = f"{tmp_prefix}data/bg_base"
+            x4['img_width'] = tmp_w
+            x4['img_height'] = tmp_h
+            self.configs.append((x4, True))
+
+            if "   " in content:
+                sf.write(f"configs/mix_data_mix.yaml-content three space==={line}\n")
+            else:
+                x5 = dict(strict="",
+                            tag=f"{job_name}-{fname}.basemix",
+                            num_img=f"{per_img_num[5]}",
+                            config_file=f"{conf}",
+                            corpus_dir=f"{tmp_prefix}{corpus_f}",
+                            fonts_list="data/fonts_list/chn.txt",
+                            corpus_mode="list",
+                            output_dir=f"{tmp_prefix}{self.o_dir}")
+                x5['config_file'] = 'configs/mix_data_mix.yaml'
+                x5['bg_dir'] = f"{tmp_prefix}data/bg_base"
+                x5['img_width'] = tmp_w
+                x5['img_height'] = tmp_h
+                self.configs.append((x5, True))
+
+            if "   " in content:
+                sf.write(f"configs/mix_data_customer.yaml-content three space==={line}\n")
+            else:
+                x6 = dict(strict="",
+                            tag=f"{job_name}-{fname}.customer",
+                            num_img=f"{per_img_num[6]}",
+                            config_file=f"{conf}",
+                            corpus_dir=f"{corpus_f}",
+                            corpus_mode="list",
+                            output_dir=f"{self.o_dir}")
+                x6['config_file'] = 'configs/mix_data_customer.yaml'
+                x6['bg_dir'] = f"data/bg_base"
+                x6['img_width'] = tmp_w
+                x6['img_height'] = tmp_h
+                self.configs.append((x6, False))
+        else:
+            sf.write(f"{line}\n")        
 
     def __base_have_image__(self, image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix):
 
@@ -29,135 +149,16 @@ class gexinghuaRunner:
                 tmpimg = Image.open(os.path.join(image_dir_path, fname))
                 tmp_w = tmpimg.size[0]
                 tmp_h = tmpimg.size[1]
-
+                self.__make_configs__(content, tmp_w, tmp_h, fname, image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix)
                 # 如果字符长度的2倍，大于，宽度除以高度的话，才可以进行数据生产：497，25。字符长度为10的时候，2*10>(497/25)
-                if (len(content) * 2) > (tmp_w * 1.0 / tmp_h):
-                    corpus_f = os.path.join(corpus_dir, fname)
-                    if os.path.exists(corpus_f):
-                        shutil.rmtree(corpus_f)
-                    os.makedirs(corpus_f)
-                    with open(f"{corpus_f}/{fname}.txt", "w", encoding='utf-8') as tmpf:
-                        tmpf.write(f"{content}\n")
-
-                    tmpdict = dict(strict="", 
-                                tag=f"{job_name}-{fname}.base",
-                                num_img=f"{per_img_num[0]}",
-                                config_file=f"{conf}",
-                                corpus_dir=f"{tmp_prefix}{corpus_f}",
-                                fonts_list="data/fonts_list/chn.txt",
-                                corpus_mode="list",
-                                output_dir=f"{tmp_prefix}{self.o_dir}")
-                    tmpdict['img_width'] = tmp_w
-                    tmpdict['img_height'] = tmp_h
-                    self.configs.append((tmpdict, True))
-
-                    if not is_fix:
-                        tmpimg.crop([0, 0, tmp_w * 0.05 + 1, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}-1.jpg")
-                        tmpimg.crop([tmp_w * 0.95 - 1, 0, tmp_w, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}-3.jpg")
-
-                        self.widthList.append(tmp_w)
-                        self.heightList.append(tmp_h)
-                        self.labelLenList.append(len(content))
-                        self.textureList.append([tmp_w, tmp_h, content, f"data/bg_base/{job_name}-{fname}"])
-
-                    x1 = dict(strict="",
-                                tag=f"{job_name}-{fname}.line",
-                                num_img=f"{per_img_num[1]}",
-                                config_file=f"{conf}",
-                                corpus_dir=f"{tmp_prefix}{corpus_f}",
-                                fonts_list="data/fonts_list/chn.txt",
-                                corpus_mode="list",
-                                output_dir=f"{tmp_prefix}{self.o_dir}")
-                    x1['config_file'] = 'configs/mix_data_line.yaml'
-                    x1['img_width'] = tmp_w
-                    x1['img_height'] = tmp_h
-                    self.configs.append((x1, True))
-
-                    x2 = dict(strict="",
-                                tag=f"{job_name}-{fname}.blur",
-                                num_img=f"{per_img_num[2]}",
-                                config_file=f"{conf}",
-                                corpus_dir=f"{tmp_prefix}{corpus_f}",
-                                fonts_list="data/fonts_list/chn.txt",
-                                corpus_mode="list",
-                                output_dir=f"{tmp_prefix}{self.o_dir}")
-                    x2['config_file'] = 'configs/mix_data_blur.yaml'
-                    x2['img_width'] = tmp_w
-                    x2['img_height'] = tmp_h
-                    self.configs.append((x2, True))
-
-                    if "   " in content:
-                        sf.write(f"configs/mix_data_space.yaml-content three space==={line}\n")
-                    else:
-                        x3 = dict(strict="",
-                                    tag=f"{job_name}-{fname}.space",
-                                    num_img=f"{per_img_num[3]}",
-                                    config_file=f"{conf}",
-                                    corpus_dir=f"{tmp_prefix}{corpus_f}",
-                                    fonts_list="data/fonts_list/chn.txt",
-                                    corpus_mode="list",
-                                    output_dir=f"{tmp_prefix}{self.o_dir}")
-                        x3['config_file'] = 'configs/mix_data_space.yaml'
-                        x3['img_width'] = tmp_w
-                        x3['img_height'] = tmp_h
-                        self.configs.append((x3, True))
-
-                    x4 = dict(strict="",
-                                tag=f"{job_name}-{fname}.bg",
-                                num_img=f"{per_img_num[4]}",
-                                config_file=f"{conf}",
-                                corpus_dir=f"{tmp_prefix}{corpus_f}",
-                                fonts_list="data/fonts_list/chn.txt",
-                                corpus_mode="list",
-                                output_dir=f"{tmp_prefix}{self.o_dir}")
-                    x4['config_file'] = 'configs/mix_data_bg.yaml'
-                    x4['bg_dir'] = f"{tmp_prefix}data/bg_base"
-                    x4['img_width'] = tmp_w
-                    x4['img_height'] = tmp_h
-                    self.configs.append((x4, True))
-
-                    if "   " in content:
-                        sf.write(f"configs/mix_data_mix.yaml-content three space==={line}\n")
-                    else:
-                        x5 = dict(strict="",
-                                    tag=f"{job_name}-{fname}.basemix",
-                                    num_img=f"{per_img_num[5]}",
-                                    config_file=f"{conf}",
-                                    corpus_dir=f"{tmp_prefix}{corpus_f}",
-                                    fonts_list="data/fonts_list/chn.txt",
-                                    corpus_mode="list",
-                                    output_dir=f"{tmp_prefix}{self.o_dir}")
-                        x5['config_file'] = 'configs/mix_data_mix.yaml'
-                        x5['bg_dir'] = f"{tmp_prefix}data/bg_base"
-                        x5['img_width'] = tmp_w
-                        x5['img_height'] = tmp_h
-                        self.configs.append((x5, True))
-
-                    if "   " in content:
-                        sf.write(f"configs/mix_data_customer.yaml-content three space==={line}\n")
-                    else:
-                        x6 = dict(strict="",
-                                    tag=f"{job_name}-{fname}.customer",
-                                    num_img=f"{per_img_num[6]}",
-                                    config_file=f"{conf}",
-                                    corpus_dir=f"{corpus_f}",
-                                    corpus_mode="list",
-                                    output_dir=f"{self.o_dir}")
-                        x6['config_file'] = 'configs/mix_data_customer.yaml'
-                        x6['bg_dir'] = f"data/bg_base"
-                        x6['img_width'] = tmp_w
-                        x6['img_height'] = tmp_h
-                        self.configs.append((x6, False))
-                else:
-                    sf.write(f"{line}\n")
-
 
     def __init__(self, image_dir_path="", train_file="",
     per_img_num=(96, 32, 256), conf="configs/mix_data_base.yaml",
     corpus_dir="data/list_corpus", o_dir="output/mix_train",
     key_file="",
     job_name="collect_texture",
-    is_fix=False, have_img=True, list_corpus="", texture_pkl="data/base_texture.pkl"
+    is_fix=False, have_img=True, list_corpus="", texture_pkl="data/base_texture.pkl", 
+    out_list_corps="list_corps.txt"
     ):
         # vim -d configs/default.yaml configs/mix_data.yaml
         # mkdir caonima; cd caonima; git clone ; checkout
@@ -201,8 +202,31 @@ class gexinghuaRunner:
             self.dfTexture = pd.read_pickle(texture_pkl)
             # 找到逻辑了，通过长度，找所有长度为这个长度的语料。然后，开始搞。所以，这里就不是写一行了, 语料里面是很多行。
             # 所有没有匹配到的语料。最终拼接成一行。就行顺序截取。一一对应。。while（true），直到消耗殆尽。。
+            self.CorpusInception(image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix, out_list_corps)
+            self.__getUniSize__(is_fix)
+
+    def CorpusInception(self, image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix, out_list_corps="list_corps.txt"):
+        # 根据textureList的位置给
+        with open(out_list_corps, encoding="utf-8") as f:
+            tmpList = [str(e).strip() for e in f.readlines()]
             
-            pass
+        index = 0
+        all_corps = "".join(tmpList)
+        bonder = len(all_corps)
+        while index < bonder:
+            for i in range(len(self.dfTexture)):
+                tmp_width = int(self.dfTexture.iloc[i][0])
+                tmp_height = int(self.dfTexture.iloc[i][1])
+                tmp_length = len(self.dfTexture.iloc[i][2])
+                if index + tmp_length < bonder:
+                    tmp_content = all_corps[index:(index + tmp_length)]
+                    # 加载各种配置文件。。
+                    self.__make_configs__(tmp_content, tmp_width, tmp_height, str(index), image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix)
+                    index += tmp_length
+                else:
+                    index += tmp_length
+                    break
+
 
     def __counter__(self, i, a, b):
         counter = 0
@@ -276,27 +300,27 @@ class gexinghuaRunner:
             args.append('--%s' % k)
             args.append('%s' % v)
         return args
-    def __p_process__(self, cmd):
-        os.system(cmd)
+    def __run_cmd__(self, cmd, script, params):
+        if 'sh' == cmd:
+            subprocess.run([cmd, script] + [" ".join([str(e) for e in params])])
+        else:
+            subprocess.run([cmd, script] + params)
 
     def run_gen(self, pool_len=1):
-        # self.main_func = './main.py'
+        self.main_func = './main.py'
         # 先做一些清理工作。
         if os.path.exists(self.o_dir):
             shutil.rmtree(self.o_dir)
         # 对于base的东西使用shell进行调用。。
-        pool = Pool(pool_len)
+        pool = Pool(processes=pool_len)
         for config, flag in self.configs:
             xargs = self.__dict_to_args__(config)
             # print("Run with args: %s" % xargs)
             if flag:
-                # subprocess.run(['sh', "exe_original.sh"] + [" ".join([str(e) for e in xargs])])
-                print("sh exe_original.sh '" + " ".join([str(e) for e in xargs]) + "'")
-                pool.apply_async(self.__p_process__, args=("sh exe_original.sh '" + " ".join([str(e) for e in xargs]) + "'"))
+                pool.apply_async(self.__run_cmd__, ('sh', 'exe_original.sh', xargs,))
+
             else:
-                # subprocess.run(['python', self.main_func] + xargs)
-                print('python ./main.py ' + " ".join([str(e) for e in xargs]) )
-                pool.apply_async(self.__p_process__, args=('python ./main.py ' + " ".join([str(e) for e in xargs]) ))
+                pool.apply_async(self.__run_cmd__, ('python', self.main_func, xargs,))
             # 务必休息100s否则，机器一定会崩掉。
             # time.sleep(100)
         pool.close()
@@ -310,6 +334,7 @@ class gexinghuaRunner:
         with open(os.path.join(self.out, "tmp_labels.txt"), "w", encoding='utf-8') as resultf:
             for dir_path, dir_name_list, file_name_list in os.walk(self.o_dir):
                 if dir_path != self.o_dir:
+
                     # basename现在是路径的最后一个。
                     basename = dir_path.split("/")[-1]
                     # 如果不是隐藏文件。
@@ -461,15 +486,17 @@ def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
 
 
 # 修补程序测试通过。
-# x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_stdard",
-# train_file="/Users/GuoLiuFang/Downloads/label_tmp_all20190311.txt_filter_l.txt",
-# o_dir="output/test_fix",
-# per_img_num=(1, 2, 3, 4, 5, 6, 7),
-# job_name="test_fix_job_name",
-# is_fix=True,
-# have_img=True,
-# key_file="/Users/GuoLiuFang/Downloads/keys.txt"
-# )
+x = gexinghuaRunner(image_dir_path="/Users/guoliufang/Documents/BeiKeWorkSpace/Datasets/qishui_20190321_fix",
+train_file="/Users/guoliufang/Documents/BeiKeWorkSpace/Datasets/qishui_20190321_fix/labels_fix.debug.txt",
+o_dir="output/test_fix",
+per_img_num=(1, 2, 3, 4, 5, 6, 7),
+job_name="test_fix_job_name",
+is_fix=True,
+have_img=False,
+key_file="/Users/GuoLiuFang/Downloads/keys.txt",
+texture_pkl="/Users/GuoLiuFang/Downloads/you_are_front_three-base_texture.pkl",
+out_list_corps="/Users/guoliufang/Documents/BeiKeWorkSpace/Datasets/qishui_20190321_fix/labels_fix.debug.txt"
+)
 # # 测试crate程序当前的现状
 # x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_stdard",
 # train_file="/Users/GuoLiuFang/Downloads/label_tmp_all20190311.txt_filter_l.txt",
@@ -482,23 +509,23 @@ def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
 # key_file="/Users/GuoLiuFang/Downloads/keys.txt"
 # )
 
-x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/become_legend",
-train_file="/workspace/densent_ocr/become_legend/become_legend_finnaly.txt",
-o_dir="output/dare_to_life",
-per_img_num=(128, 16, 16, 16, 16, 64, 64),
-#per_img_num=(1, 2, 3, 4, 5, 6, 7),
-# per_img_num=(100, 32, 32, 32, 32, 72, 100), 每张图400张。
-job_name="you_are_the_legend",
-is_fix=False,
-key_file=""
-)
+# x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/become_legend",
+# train_file="/workspace/densent_ocr/become_legend/become_legend_finnaly.txt",
+# o_dir="output/dare_to_life",
+# per_img_num=(128, 16, 16, 16, 16, 64, 64),
+# #per_img_num=(1, 2, 3, 4, 5, 6, 7),
+# # per_img_num=(100, 32, 32, 32, 32, 72, 100), 每张图400张。
+# job_name="you_are_the_legend",
+# is_fix=False,
+# key_file=""
+# )
 
 
 # x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui_stdard",
 # train_file="/workspace/densent_ocr/only_qishui_stdard/label_tmp_all20190311.txt",
 # o_dir="output/only_all"
 # )
-x.run_gen(pool_len=14)
+x.run_gen()
 x.merge_result(out_suffix="_merge")
 x.resizeImg(result_suffix="_resize")
 # resizeImg(result_suffix="_keys_acsii")

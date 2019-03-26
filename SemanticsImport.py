@@ -1,10 +1,7 @@
 """
-    1. 应用纹理特征；
-    2. 分词，扩充语料的范围。
-    2. 修补字频分布不均匀的问题。
-
+第一版：所有语料，拍成一行。根据长度随机截取。
+第这个脚本的作用，就是生成语料就好。
 """
-#%%
 import os
 import jieba
 from functools import reduce
@@ -32,17 +29,6 @@ class Sematics:
         if os.path.exists("word_distribution.pkl"):
             pkl_wd = open("word_distribution.pkl", "rb")
             self.counter = pickle.load(pkl_wd)
-
-    def haveImageLowChaFreqFix(self, parameter_list):
-        """
-            查找字频缺失，输出是，一种补齐的语料。如何平衡字频问题。。。
-            现在情况分化为两种情况
-            1. （有图片）低频增补，
-            2. （无图片），纯textTure控制生产。。。
-            总体，进行隔离进行。
-        """
-
-
 
     def __genCorps__(self, corps_file_list):
         """
@@ -103,12 +89,3 @@ class Sematics:
  
 x = Sematics(corps_file_list=["/Users/GuoLiuFang/Downloads/label_tmp_all20190311.txt_filter_l.txt"])
 # x.departHFLF(train_file="/Users/GuoLiuFang/Downloads/tmp_labels.txt",label_file_list=["/Users/GuoLiuFang/Downloads/tmp_labels.txt", "/Users/GuoLiuFang/Downloads/label_tmp_all20190311.txt"])
-
-#%%
-print("高频字的数量", len(x.high_f))
-print("低频字的数量", len(x.low_f))
-print(x.HFLF_threshold)
-
-#%%
-x.dfTexture.head()
-print(len(x.dfTexture))
