@@ -15,7 +15,7 @@ class gexinghuaRunner:
     """
         job_name中不能含有点.号。
     """
-    def __make_configs__(self, content, tmp_w, tmp_h, fname, image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix):
+    def __make_configs__(self, content, tmpimg, tmp_w, tmp_h, fname, image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix):
         if (len(content) * 2) > (tmp_w * 1.0 / tmp_h):
             corpus_f = os.path.join(corpus_dir, fname)
             if os.path.exists(corpus_f):
@@ -149,7 +149,7 @@ class gexinghuaRunner:
                 tmpimg = Image.open(os.path.join(image_dir_path, fname))
                 tmp_w = tmpimg.size[0]
                 tmp_h = tmpimg.size[1]
-                self.__make_configs__(content, tmp_w, tmp_h, fname, image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix)
+                self.__make_configs__(content, tmpimg, tmp_w, tmp_h, fname, image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix)
                 # 如果字符长度的2倍，大于，宽度除以高度的话，才可以进行数据生产：497，25。字符长度为10的时候，2*10>(497/25)
 
     def __init__(self, image_dir_path="", train_file="",
@@ -221,7 +221,7 @@ class gexinghuaRunner:
                 if index + tmp_length < bonder:
                     tmp_content = all_corps[index:(index + tmp_length)]
                     # 加载各种配置文件。。
-                    self.__make_configs__(tmp_content, tmp_width, tmp_height, str(index), image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix)
+                    self.__make_configs__(tmp_content, None, tmp_width, tmp_height, str(index), image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix)
                     index += tmp_length
                 else:
                     index += tmp_length
