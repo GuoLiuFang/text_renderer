@@ -276,8 +276,8 @@ class gexinghuaRunner:
             args.append('--%s' % k)
             args.append('%s' % v)
         return args
-    def __p_process__(self, cmd, params):
-        os.system(cmd + " " + " ".join(params))
+    def __p_process__(self, cmd):
+        os.system(cmd)
 
     def run_gen(self, pool_len=1):
         # self.main_func = './main.py'
@@ -291,10 +291,12 @@ class gexinghuaRunner:
             # print("Run with args: %s" % xargs)
             if flag:
                 # subprocess.run(['sh', "exe_original.sh"] + [" ".join([str(e) for e in xargs])])
-                pool.apply_async(self.__p_process__, args=("sh exe_original.sh", xargs))
+                print("sh exe_original.sh '" + " ".join([str(e) for e in xargs]) + "'")
+                pool.apply_async(self.__p_process__, args=("sh exe_original.sh '" + " ".join([str(e) for e in xargs]) + "'"))
             else:
                 # subprocess.run(['python', self.main_func] + xargs)
-                pool.apply_async(self.__p_process__, args=('python ./main.py', xargs))
+                print('python ./main.py ' + " ".join([str(e) for e in xargs]) )
+                pool.apply_async(self.__p_process__, args=('python ./main.py ' + " ".join([str(e) for e in xargs]) ))
             # 务必休息100s否则，机器一定会崩掉。
             # time.sleep(100)
         pool.close()
