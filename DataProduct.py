@@ -16,6 +16,7 @@ class gexinghuaRunner:
         job_name中不能含有点.号。
     """
     def __make_configs__(self, content, tmpimg, tmp_w, tmp_h, fname, image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix):
+        line = content
         with open(f"{job_name}-bad_label_case.txt", "w", encoding="utf-8") as sf:
             if (len(content) * 2) > (tmp_w * 1.0 / tmp_h):
                 corpus_f = os.path.join(corpus_dir, fname)
