@@ -10,7 +10,6 @@ import math
 import statistics
 import pickle
 import time
-from multiprocessing import Pool
 class gexinghuaRunner:
     """
         job_name中不能含有点.号。
@@ -275,7 +274,7 @@ class gexinghuaRunner:
             a_mean = t_height_stat[0]
             self.uni_h = 158
             a_stddev = t_height_stat[1]
-            if len(self.heightList) > 4096:
+            if len(self.heightList) > 2048:
                 self.uni_h = math.floor(a_mean + 2.0 * a_stddev)
             # 第二步，统计归一化以后的情况。。
             tmp_w_list = []
@@ -287,7 +286,7 @@ class gexinghuaRunner:
             b_mean = t_width_stat[0]
             self.uni_w = 686
             b_stddev = t_width_stat[1]
-            if len(self.widthList) > 4096:
+            if len(self.widthList) > 2048:
                 self.uni_w = math.floor(b_mean + 2.0 * b_stddev)
             # 统计长度的结果
             o_label_len = self.getStat(self.labelLenList)
@@ -301,31 +300,20 @@ class gexinghuaRunner:
             args.append('--%s' % k)
             args.append('%s' % v)
         return args
-    def __run_cmd__(self, cmd, script, params):
-        if 'sh' == cmd:
-            subprocess.run([cmd, script] + [" ".join([str(e) for e in params])])
-        else:
-            subprocess.run([cmd, script] + params)
 
     def run_gen(self, pool_len=1):
-        self.main_func = './main.py'
+        self.main_func = 'main.py'
         # 先做一些清理工作。
         if os.path.exists(self.o_dir):
             shutil.rmtree(self.o_dir)
         # 对于base的东西使用shell进行调用。。
-        pool = Pool(processes=pool_len)
         for config, flag in self.configs:
             xargs = self.__dict_to_args__(config)
             # print("Run with args: %s" % xargs)
             if flag:
-                pool.apply_async(self.__run_cmd__, ('sh', 'exe_original.sh', xargs,))
-
+                subprocess.run(['python', f'caonima/text_renderer/{self.main_func}'] + xargs)
             else:
-                pool.apply_async(self.__run_cmd__, ('python', self.main_func, xargs,))
-            # 务必休息100s否则，机器一定会崩掉。
-            # time.sleep(100)
-        pool.close()
-        pool.join()
+                subprocess.run(['python', self.main_func] + xargs)
             
     def merge_result(self, out_suffix="_result"):
         self.out = self.o_dir + out_suffix
