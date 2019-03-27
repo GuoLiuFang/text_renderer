@@ -301,7 +301,7 @@ class gexinghuaRunner:
     def __mul_process__(self, cmd):
         subprocess.run(cmd)
 
-    def run_gen(self, pool_len=8):
+    def run_gen(self, pool_len=13):
         self.main_func = 'main.py'
         # 先做一些清理工作。
         if os.path.exists(self.o_dir):
@@ -506,7 +506,7 @@ def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
 x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/become_legend",
 train_file="/workspace/densent_ocr/become_legend/become_legend_finnaly.txt",
 o_dir="output/dare_to_life",
-per_img_num=(64, 16, 16, 16, 64, 64, 128),
+per_img_num=(64, 16, 32, 16, 32, 64, 128),
 #per_img_num=(1, 2, 3, 4, 5, 6, 7),
 # per_img_num=(100, 32, 32, 32, 32, 72, 100), 每张图400张。
 job_name="you_are_the_legend",

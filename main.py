@@ -126,7 +126,7 @@ def restore_exist_labels(label_path):
 def get_num_processes(flags):
     processes = flags.num_processes
     if processes is None:
-        processes = max(os.cpu_count(), 2)
+        processes = max(os.cpu_count(), 1)
     return processes
 
 
