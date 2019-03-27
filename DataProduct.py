@@ -10,7 +10,6 @@ import math
 import statistics
 import pickle
 import time
-from multiprocessing import Pool
 class gexinghuaRunner:
     """
         job_name中不能含有点.号。
@@ -298,27 +297,19 @@ class gexinghuaRunner:
             args.append('%s' % v)
         return args
 
-    def __mul_process__(self, cmd):
-        subprocess.run(cmd)
-
-    def run_gen(self, pool_len=6):
+    def run_gen(self, pool_len=1):
         self.main_func = 'main.py'
         # 先做一些清理工作。
         if os.path.exists(self.o_dir):
             shutil.rmtree(self.o_dir)
         # 对于base的东西使用shell进行调用。。
-        pool = Pool(pool_len)
         for config, flag in self.configs:
             xargs = self.__dict_to_args__(config)
             # print("Run with args: %s" % xargs)
             if flag:
-                pool.apply_async(self.__mul_process__, (['python', f'caonima/text_renderer/{self.main_func}'] + xargs, ))
-                # subprocess.run(['python', f'caonima/text_renderer/{self.main_func}'] + xargs)
+                subprocess.run(['python', f'caonima/text_renderer/{self.main_func}'] + xargs)
             else:
-                pool.apply_async(self.__mul_process__, (['python', self.main_func] + xargs, ))
-                # subprocess.run(['python', self.main_func] + xargs)
-        pool.close()
-        pool.join()
+                subprocess.run(['python', self.main_func] + xargs)
             
     def merge_result(self, out_suffix="_result"):
         self.out = self.o_dir + out_suffix
