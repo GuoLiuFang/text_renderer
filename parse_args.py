@@ -68,8 +68,8 @@ def parse_args():
     if not os.path.exists(flags.save_dir):
         os.makedirs(flags.save_dir, exist_ok=True)
 
-    if flags.num_processes == 1:
-        parser.error("num_processes min value is 2")
+    # if flags.num_processes == 1:
+    #     parser.error("num_processes min value is 2")
 
     return flags
 
