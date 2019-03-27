@@ -29,10 +29,10 @@ class gexinghuaRunner:
                             tag=f"{job_name}-{fname}.base",
                             num_img=f"{per_img_num[0]}",
                             config_file=f"{conf}",
-                            corpus_dir=f"{tmp_prefix}{corpus_f}",
+                            corpus_dir=f"{corpus_f}",
                             fonts_list="data/fonts_list/chn.txt",
                             corpus_mode="list",
-                            output_dir=f"{tmp_prefix}{self.o_dir}")
+                            output_dir=f"{self.o_dir}")
                 tmpdict['img_width'] = tmp_w
                 tmpdict['img_height'] = tmp_h
                 self.configs.append((tmpdict, True))
@@ -50,10 +50,10 @@ class gexinghuaRunner:
                             tag=f"{job_name}-{fname}.line",
                             num_img=f"{per_img_num[1]}",
                             config_file=f"{conf}",
-                            corpus_dir=f"{tmp_prefix}{corpus_f}",
+                            corpus_dir=f"{corpus_f}",
                             fonts_list="data/fonts_list/chn.txt",
                             corpus_mode="list",
-                            output_dir=f"{tmp_prefix}{self.o_dir}")
+                            output_dir=f"{self.o_dir}")
                 x1['config_file'] = 'configs/mix_data_line.yaml'
                 x1['img_width'] = tmp_w
                 x1['img_height'] = tmp_h
@@ -63,10 +63,10 @@ class gexinghuaRunner:
                             tag=f"{job_name}-{fname}.blur",
                             num_img=f"{per_img_num[2]}",
                             config_file=f"{conf}",
-                            corpus_dir=f"{tmp_prefix}{corpus_f}",
+                            corpus_dir=f"{corpus_f}",
                             fonts_list="data/fonts_list/chn.txt",
                             corpus_mode="list",
-                            output_dir=f"{tmp_prefix}{self.o_dir}")
+                            output_dir=f"{self.o_dir}")
                 x2['config_file'] = 'configs/mix_data_blur.yaml'
                 x2['img_width'] = tmp_w
                 x2['img_height'] = tmp_h
@@ -79,10 +79,10 @@ class gexinghuaRunner:
                                 tag=f"{job_name}-{fname}.space",
                                 num_img=f"{per_img_num[3]}",
                                 config_file=f"{conf}",
-                                corpus_dir=f"{tmp_prefix}{corpus_f}",
+                                corpus_dir=f"{corpus_f}",
                                 fonts_list="data/fonts_list/chn.txt",
                                 corpus_mode="list",
-                                output_dir=f"{tmp_prefix}{self.o_dir}")
+                                output_dir=f"{self.o_dir}")
                     x3['config_file'] = 'configs/mix_data_space.yaml'
                     x3['img_width'] = tmp_w
                     x3['img_height'] = tmp_h
@@ -92,12 +92,12 @@ class gexinghuaRunner:
                             tag=f"{job_name}-{fname}.bg",
                             num_img=f"{per_img_num[4]}",
                             config_file=f"{conf}",
-                            corpus_dir=f"{tmp_prefix}{corpus_f}",
+                            corpus_dir=f"{corpus_f}",
                             fonts_list="data/fonts_list/chn.txt",
                             corpus_mode="list",
-                            output_dir=f"{tmp_prefix}{self.o_dir}")
+                            output_dir=f"{self.o_dir}")
                 x4['config_file'] = 'configs/mix_data_bg.yaml'
-                x4['bg_dir'] = f"{tmp_prefix}data/bg_base"
+                x4['bg_dir'] = f"data/bg_base"
                 x4['img_width'] = tmp_w
                 x4['img_height'] = tmp_h
                 self.configs.append((x4, True))
@@ -109,12 +109,12 @@ class gexinghuaRunner:
                                 tag=f"{job_name}-{fname}.basemix",
                                 num_img=f"{per_img_num[5]}",
                                 config_file=f"{conf}",
-                                corpus_dir=f"{tmp_prefix}{corpus_f}",
+                                corpus_dir=f"{corpus_f}",
                                 fonts_list="data/fonts_list/chn.txt",
                                 corpus_mode="list",
-                                output_dir=f"{tmp_prefix}{self.o_dir}")
+                                output_dir=f"{self.o_dir}")
                     x5['config_file'] = 'configs/mix_data_mix.yaml'
-                    x5['bg_dir'] = f"{tmp_prefix}data/bg_base"
+                    x5['bg_dir'] = f"data/bg_base"
                     x5['img_width'] = tmp_w
                     x5['img_height'] = tmp_h
                     self.configs.append((x5, True))
