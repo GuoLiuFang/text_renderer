@@ -55,7 +55,7 @@ def parse_args():
 
     parser.add_argument('--gpu', action='store_true', default=False, help="use CUDA to generate image")
 
-    parser.add_argument('--num_processes', type=int, default=1,
+    parser.add_argument('--num_processes', type=int, default=2,
                         help="Number of processes to generate image. If None, use all cpu cores")
 
     flags, _ = parser.parse_known_args()
@@ -68,8 +68,8 @@ def parse_args():
     if not os.path.exists(flags.save_dir):
         os.makedirs(flags.save_dir, exist_ok=True)
 
-    # if flags.num_processes == 1:
-    #     parser.error("num_processes min value is 2")
+    if flags.num_processes == 1:
+        parser.error("num_processes min value is 2")
 
     return flags
 

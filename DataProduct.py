@@ -301,7 +301,7 @@ class gexinghuaRunner:
     def __mul_process__(self, cmd):
         subprocess.run(cmd)
 
-    def run_gen(self, pool_len=13):
+    def run_gen(self, pool_len=6):
         self.main_func = 'main.py'
         # 先做一些清理工作。
         if os.path.exists(self.o_dir):
