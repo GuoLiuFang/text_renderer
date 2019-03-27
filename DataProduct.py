@@ -38,13 +38,13 @@ class gexinghuaRunner:
                 self.configs.append((tmpdict, True))
 
                 if not is_fix:
-                    tmpimg.crop([0, 0, tmp_w * 0.05 + 1, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}-1.jpg")
-                    tmpimg.crop([tmp_w * 0.95 - 1, 0, tmp_w, tmp_h]).convert('RGB').save(f"data/bg_base/{job_name}-{fname}-3.jpg")
+                    tmpimg.crop([0, 0, tmp_w * 0.05 + 1, tmp_h]).convert('RGB').save(f"data/bg/{job_name}-{fname}-1.jpg")
+                    tmpimg.crop([tmp_w * 0.95 - 1, 0, tmp_w, tmp_h]).convert('RGB').save(f"data/bg/{job_name}-{fname}-3.jpg")
 
                     self.widthList.append(tmp_w)
                     self.heightList.append(tmp_h)
                     self.labelLenList.append(len(content))
-                    self.textureList.append([tmp_w, tmp_h, content, f"data/bg_base/{job_name}-{fname}"])
+                    self.textureList.append([tmp_w, tmp_h, content, f"data/bg/{job_name}-{fname}"])
 
                 x1 = dict(strict="",
                             tag=f"{job_name}-{fname}.line",
@@ -88,19 +88,18 @@ class gexinghuaRunner:
                     x3['img_height'] = tmp_h
                     self.configs.append((x3, True))
 
-                x4 = dict(strict="",
-                            tag=f"{job_name}-{fname}.bg",
-                            num_img=f"{per_img_num[4]}",
-                            config_file=f"{conf}",
-                            corpus_dir=f"{corpus_f}",
-                            fonts_list="data/fonts_list/chn.txt",
-                            corpus_mode="list",
-                            output_dir=f"{self.o_dir}")
-                x4['config_file'] = 'configs/mix_data_bg.yaml'
-                x4['bg_dir'] = f"data/bg_base"
-                x4['img_width'] = tmp_w
-                x4['img_height'] = tmp_h
-                self.configs.append((x4, True))
+                # x4 = dict(strict="",
+                #             tag=f"{job_name}-{fname}.bg",
+                #             num_img=f"{per_img_num[4]}",
+                #             config_file=f"{conf}",
+                #             corpus_dir=f"{corpus_f}",
+                #             fonts_list="data/fonts_list/chn.txt",
+                #             corpus_mode="list",
+                #             output_dir=f"{self.o_dir}")
+                # x4['config_file'] = 'configs/mix_data_bg.yaml'
+                # x4['img_width'] = tmp_w
+                # x4['img_height'] = tmp_h
+                # self.configs.append((x4, True))
 
                 if "   " in content:
                     sf.write(f"configs/mix_data_mix.yaml-content three space==={line}\n")
@@ -114,7 +113,6 @@ class gexinghuaRunner:
                                 corpus_mode="list",
                                 output_dir=f"{self.o_dir}")
                     x5['config_file'] = 'configs/mix_data_mix.yaml'
-                    x5['bg_dir'] = f"data/bg_base"
                     x5['img_width'] = tmp_w
                     x5['img_height'] = tmp_h
                     self.configs.append((x5, True))
@@ -130,7 +128,6 @@ class gexinghuaRunner:
                                 corpus_mode="list",
                                 output_dir=f"{self.o_dir}")
                     x6['config_file'] = 'configs/mix_data_customer.yaml'
-                    x6['bg_dir'] = f"data/bg_base"
                     x6['img_width'] = tmp_w
                     x6['img_height'] = tmp_h
                     self.configs.append((x6, False))
@@ -180,7 +177,6 @@ class gexinghuaRunner:
         self.textureList = []
         self.filelist.append(train_file)
 
-        os.makedirs(f"data/bg_base", exist_ok=True)
         # 如果不是修补。。
         if not is_fix:
             self.__base_have_image__(image_dir_path, train_file, corpus_dir, per_img_num, conf, tmp_prefix, job_name, is_fix)
