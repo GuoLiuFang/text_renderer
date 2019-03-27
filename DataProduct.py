@@ -301,7 +301,7 @@ class gexinghuaRunner:
     def __mul_process__(self, cmd):
         subprocess.run(cmd)
 
-    def run_gen(self, pool_len=3):
+    def run_gen(self, pool_len=8):
         self.main_func = 'main.py'
         # 先做一些清理工作。
         if os.path.exists(self.o_dir):
@@ -312,10 +312,10 @@ class gexinghuaRunner:
             xargs = self.__dict_to_args__(config)
             # print("Run with args: %s" % xargs)
             if flag:
-                pool.apply_async(self.__mul_process__, (['python', f'caonima/text_renderer/{self.main_func}'] + xargs))
+                pool.apply_async(self.__mul_process__, (['python', f'caonima/text_renderer/{self.main_func}'] + xargs, ))
                 # subprocess.run(['python', f'caonima/text_renderer/{self.main_func}'] + xargs)
             else:
-                pool.apply_async(self.__mul_process__, (['python', self.main_func] + xargs))
+                pool.apply_async(self.__mul_process__, (['python', self.main_func] + xargs, ))
                 # subprocess.run(['python', self.main_func] + xargs)
         pool.close()
         pool.join()
@@ -480,17 +480,17 @@ def fix_keys_index(fix_label_file_l=None, merge_file_l=None, out="."):
 
 
 # 修补程序测试通过。
-x = gexinghuaRunner(image_dir_path="/Users/guoliufang/Documents/BeiKeWorkSpace/Datasets/qishui_20190321_fix",
-train_file="/Users/guoliufang/Documents/BeiKeWorkSpace/Datasets/qishui_20190321_fix/labels_fix.debug.txt",
-o_dir="output/test_fix",
-per_img_num=(1, 2, 3, 4, 5, 6, 7),
-job_name="test_fix_job_name",
-is_fix=True,
-have_img=False,
-key_file="/Users/GuoLiuFang/Downloads/keys.txt",
-texture_pkl="/Users/GuoLiuFang/Downloads/you_are_front_three-base_texture.pkl",
-out_list_corps="/Users/guoliufang/Documents/BeiKeWorkSpace/Datasets/qishui_20190321_fix/labels_fix.debug.txt"
-)
+# x = gexinghuaRunner(image_dir_path="/Users/guoliufang/Documents/BeiKeWorkSpace/Datasets/qishui_20190321_fix",
+# train_file="/Users/guoliufang/Documents/BeiKeWorkSpace/Datasets/qishui_20190321_fix/labels_fix.debug.txt",
+# o_dir="output/test_fix",
+# per_img_num=(1, 2, 3, 4, 5, 6, 7),
+# job_name="test_fix_job_name",
+# is_fix=True,
+# have_img=False,
+# key_file="/Users/GuoLiuFang/Downloads/keys.txt",
+# texture_pkl="/Users/GuoLiuFang/Downloads/you_are_front_three-base_texture.pkl",
+# out_list_corps="/Users/guoliufang/Documents/BeiKeWorkSpace/Datasets/qishui_20190321_fix/labels_fix.debug.txt"
+# )
 # # 测试crate程序当前的现状
 # x = gexinghuaRunner(image_dir_path="/Users/GuoLiuFang/Downloads/only_qishui_stdard",
 # train_file="/Users/GuoLiuFang/Downloads/label_tmp_all20190311.txt_filter_l.txt",
@@ -503,16 +503,16 @@ out_list_corps="/Users/guoliufang/Documents/BeiKeWorkSpace/Datasets/qishui_20190
 # key_file="/Users/GuoLiuFang/Downloads/keys.txt"
 # )
 
-# x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/become_legend",
-# train_file="/workspace/densent_ocr/become_legend/become_legend_finnaly.txt",
-# o_dir="output/dare_to_life",
-# per_img_num=(128, 16, 16, 16, 16, 64, 64),
-# #per_img_num=(1, 2, 3, 4, 5, 6, 7),
-# # per_img_num=(100, 32, 32, 32, 32, 72, 100), 每张图400张。
-# job_name="you_are_the_legend",
-# is_fix=False,
-# key_file=""
-# )
+x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/become_legend",
+train_file="/workspace/densent_ocr/become_legend/become_legend_finnaly.txt",
+o_dir="output/dare_to_life",
+per_img_num=(64, 16, 16, 16, 64, 64, 128),
+#per_img_num=(1, 2, 3, 4, 5, 6, 7),
+# per_img_num=(100, 32, 32, 32, 32, 72, 100), 每张图400张。
+job_name="you_are_the_legend",
+is_fix=False,
+key_file=""
+)
 
 
 # x = gexinghuaRunner(image_dir_path="/workspace/densent_ocr/only_qishui_stdard",
