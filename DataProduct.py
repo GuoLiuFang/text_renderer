@@ -10,6 +10,7 @@ import math
 import statistics
 import pickle
 import time
+from multiprocessing import Pool
 class gexinghuaRunner:
     """
         job_name中不能含有点.号。
@@ -88,18 +89,18 @@ class gexinghuaRunner:
                     x3['img_height'] = tmp_h
                     self.configs.append((x3, True))
 
-                # x4 = dict(strict="",
-                #             tag=f"{job_name}-{fname}.bg",
-                #             num_img=f"{per_img_num[4]}",
-                #             config_file=f"{conf}",
-                #             corpus_dir=f"{corpus_f}",
-                #             fonts_list="data/fonts_list/chn.txt",
-                #             corpus_mode="list",
-                #             output_dir=f"{self.o_dir}")
-                # x4['config_file'] = 'configs/mix_data_bg.yaml'
-                # x4['img_width'] = tmp_w
-                # x4['img_height'] = tmp_h
-                # self.configs.append((x4, True))
+                x4 = dict(strict="",
+                            tag=f"{job_name}-{fname}.default",
+                            num_img=f"{per_img_num[4]}",
+                            config_file=f"{conf}",
+                            corpus_dir=f"{corpus_f}",
+                            fonts_list="data/fonts_list/chn.txt",
+                            corpus_mode="list",
+                            output_dir=f"{self.o_dir}")
+                x4['config_file'] = 'configs/default.yaml'
+                x4['img_width'] = tmp_w
+                x4['img_height'] = tmp_h
+                self.configs.append((x4, True))
 
                 if "   " in content:
                     sf.write(f"configs/mix_data_mix.yaml-content three space==={line}\n")
@@ -297,19 +298,27 @@ class gexinghuaRunner:
             args.append('%s' % v)
         return args
 
-    def run_gen(self, pool_len=1):
+    def __mul_process__(self, cmd):
+        subprocess.run(cmd)
+
+    def run_gen(self, pool_len=3):
         self.main_func = 'main.py'
         # 先做一些清理工作。
         if os.path.exists(self.o_dir):
             shutil.rmtree(self.o_dir)
         # 对于base的东西使用shell进行调用。。
+        pool = Pool(pool_len)
         for config, flag in self.configs:
             xargs = self.__dict_to_args__(config)
             # print("Run with args: %s" % xargs)
             if flag:
-                subprocess.run(['python', f'caonima/text_renderer/{self.main_func}'] + xargs)
+                pool.apply_async(self.__mul_process__, (['python', f'caonima/text_renderer/{self.main_func}'] + xargs))
+                # subprocess.run(['python', f'caonima/text_renderer/{self.main_func}'] + xargs)
             else:
-                subprocess.run(['python', self.main_func] + xargs)
+                pool.apply_async(self.__mul_process__, (['python', self.main_func] + xargs))
+                # subprocess.run(['python', self.main_func] + xargs)
+        pool.close()
+        pool.join()
             
     def merge_result(self, out_suffix="_result"):
         self.out = self.o_dir + out_suffix
